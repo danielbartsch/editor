@@ -10,6 +10,10 @@ pub mod sdl2 {
 
     use super::cursor::cursor::Cursor;
 
+    static CHARACTER_WIDTH: i32 = 8;
+    static CHARACTER_HEIGHT: i32 = 16;
+    static LINE_GAP: i32 = 4;
+
     pub fn run() {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
@@ -77,19 +81,19 @@ pub mod sdl2 {
 
             println!("cursor: {:?}", cursor);
 
-            for (lineIndex, length) in cursor.line_lengths.iter().enumerate() {
+            for (line_index, length) in cursor.line_lengths.iter().enumerate() {
                 let coords = get_line_coords_line_draw(length);
 
                 for (index, (x1, y1)) in coords.iter().enumerate() {
                     if index < (coords.len() - 1) {
                         let (x2, y2) = coords[index + 1];
 
-                        let line_y_offset = lineIndex as i32 * 20;
+                        let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
 
                         canvas.draw_line(
                             Point::new(*x1, *y1 + line_y_offset),
                             Point::new(x2, y2 + line_y_offset),
-                        );
+                        ).unwrap();
                     }
                 }
             }
@@ -107,21 +111,21 @@ pub mod sdl2 {
                             ((x2 * 50.0) as i32 + x * 2) % window_width as i32,
                             ((y2 * 50.0) as i32 + y * 2) % window_height as i32,
                         ),
-                    );
+                    ).unwrap();
                 }
             }
 
             canvas.set_draw_color(Color::RGB(255, 64, 30));
             canvas.draw_line(
                 (
-                    cursor.start.column as i32 * 8,
-                    cursor.start.line as i32 * 20,
+                    cursor.start.column as i32 * CHARACTER_WIDTH,
+                    cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
                 ),
                 (
-                    cursor.start.column as i32 * 8,
-                    cursor.start.line as i32 * 20 + 16,
+                    cursor.start.column as i32 * CHARACTER_WIDTH,
+                    cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT) + CHARACTER_HEIGHT,
                 ),
-            );
+            ).unwrap();
 
             canvas.present();
             ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 16));
@@ -147,15 +151,12 @@ pub mod sdl2 {
     }
 
     fn get_line_coords(length: &usize) -> Vec<(i32, i32)> {
-        let character_width = 8;
-        let character_height = 16;
-
-        let line_length = length * character_width;
+        let line_length = *length as i32 * CHARACTER_WIDTH;
         vec![
             (0, 0),
             (line_length as i32, 0),
-            (line_length as i32, character_height),
-            (0, character_height),
+            (line_length as i32, CHARACTER_HEIGHT),
+            (0, CHARACTER_HEIGHT),
         ]
     }
 
