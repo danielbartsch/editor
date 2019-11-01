@@ -85,10 +85,11 @@ pub mod cursor {
             }
         }
         fn vertical_movement_line(&mut self, direction: isize) {
-            if (self.start.line as isize + direction) as usize > self.line_lengths.len() - 1 {
+            let next_line = self.start.line as isize + direction;
+            if next_line > (self.line_lengths.len() - 1) as isize {
                 self.start.line = self.line_lengths.len() - 1;
                 self.end.line = self.line_lengths.len() - 1;
-            } else if self.start.line as isize + direction <= 0 {
+            } else if next_line <= 0 {
                 self.start.line = 0;
                 self.end.line = 0;
             } else {
@@ -164,5 +165,18 @@ pub mod cursor {
         assert_eq!(cursor.start.column, 3, "third");
         cursor.up();
         assert_eq!(cursor.start.column, 3, "fourth");
+    }
+
+    #[test]
+    fn wrap_around() {
+        let mut cursor = Cursor::new(vec![1, 1]);
+        cursor.down();
+        assert_eq!(cursor.start.line, 1, "last line");
+        cursor.down();
+        assert_eq!(cursor.start.line, 1, "should stay on last line");
+        cursor.up();
+        assert_eq!(cursor.start.line, 0, "first line");
+        cursor.up();
+        assert_eq!(cursor.start.line, 0, "should stay on first line");
     }
 }
