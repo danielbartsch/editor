@@ -92,10 +92,12 @@ pub mod sdl2 {
 
                         let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
 
-                        canvas.draw_line(
-                            Point::new(*x1, *y1 + line_y_offset),
-                            Point::new(x2, y2 + line_y_offset),
-                        ).unwrap();
+                        canvas
+                            .draw_line(
+                                Point::new(*x1, *y1 + line_y_offset),
+                                Point::new(x2, y2 + line_y_offset),
+                            )
+                            .unwrap();
                     }
                 }
             }
@@ -104,30 +106,34 @@ pub mod sdl2 {
             for (index, (x1, y1)) in coords.iter().enumerate() {
                 if index < (coords.len() - 1) {
                     let (x2, y2) = coords[index + 1];
-                    canvas.draw_line(
-                        (
-                            ((x1 * 50.0) as i32 + x * 2) % window_width as i32,
-                            ((y1 * 50.0) as i32 + y * 2) % window_height as i32,
-                        ),
-                        (
-                            ((x2 * 50.0) as i32 + x * 2) % window_width as i32,
-                            ((y2 * 50.0) as i32 + y * 2) % window_height as i32,
-                        ),
-                    ).unwrap();
+                    canvas
+                        .draw_line(
+                            (
+                                ((x1 * 50.0) as i32 + x * 2) % window_width as i32,
+                                ((y1 * 50.0) as i32 + y * 2) % window_height as i32,
+                            ),
+                            (
+                                ((x2 * 50.0) as i32 + x * 2) % window_width as i32,
+                                ((y2 * 50.0) as i32 + y * 2) % window_height as i32,
+                            ),
+                        )
+                        .unwrap();
                 }
             }
 
             canvas.set_draw_color(Color::RGB(255, 64, 30));
-            canvas.draw_line(
-                (
-                    cursor.start.column as i32 * CHARACTER_WIDTH,
-                    cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
-                ),
-                (
-                    cursor.start.column as i32 * CHARACTER_WIDTH,
-                    cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT) + CHARACTER_HEIGHT,
-                ),
-            ).unwrap();
+            canvas
+                .draw_line(
+                    (
+                        cursor.start.column as i32 * CHARACTER_WIDTH,
+                        cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
+                    ),
+                    (
+                        cursor.start.column as i32 * CHARACTER_WIDTH,
+                        cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT) + CHARACTER_HEIGHT,
+                    ),
+                )
+                .unwrap();
 
             canvas.present();
             ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 16));
