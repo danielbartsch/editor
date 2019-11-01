@@ -34,7 +34,9 @@ pub mod sdl2 {
         let mut x = 0;
         let mut y = 0;
 
-        let mut cursor = Cursor::new(vec![1, 4, 27, 1, 35, 90, 70, 10, 43, 1, 1, 1, 10, 10, 10, 1]);
+        let mut cursor = Cursor::new(vec![
+            1, 4, 27, 1, 35, 90, 70, 10, 43, 1, 1, 1, 10, 10, 10, 1,
+        ]);
 
         'running: loop {
             canvas.set_draw_color(Color::RGB(30, 64, 255));

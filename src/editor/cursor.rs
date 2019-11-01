@@ -78,11 +78,12 @@ pub mod cursor {
                     self.end.line -= 1;
                     let upper_line_max_column = self.line_lengths.get(self.start.line).unwrap();
                     if &self.start.column != &self.start.column_offset
-                        && &self.start.column <= upper_line_max_column
+                        && &self.start.column < &self.start.column_offset
+                        && &self.start.column_offset >= upper_line_max_column
                     {
                         self.start.column = self.start.column_offset;
                         self.end.column = self.end.column_offset;
-                    } else if &self.start.column > &upper_line_max_column {
+                    } else if &self.start.column > upper_line_max_column {
                         self.start.column = *upper_line_max_column;
                         self.end.column = *upper_line_max_column;
                     }
@@ -96,11 +97,14 @@ pub mod cursor {
                     self.end.line += 1;
                     let lower_line_max_column = self.line_lengths.get(self.start.line).unwrap();
                     if &self.start.column != &self.start.column_offset
-                        && &self.start.column <= lower_line_max_column
+                        && &self.start.column < &self.start.column_offset
+                        && &self.start.column_offset >= lower_line_max_column
                     {
+                        println!("HIYA");
                         self.start.column = self.start.column_offset;
                         self.end.column = self.end.column_offset;
                     } else if &self.start.column > lower_line_max_column {
+                        println!("THER");
                         self.start.column = *lower_line_max_column;
                         self.end.column = *lower_line_max_column;
                     }
@@ -110,9 +114,53 @@ pub mod cursor {
     }
 
     #[test]
-    fn left_1() {
-        let mut cursor = Cursor::new(vec![1]);
-        cursor.left();
-        assert_eq!(cursor, Cursor)
+    fn remembering_sideways_flat() {
+        let mut cursor = Cursor::new(vec![3, 1, 1]);
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 2, "beginning");
+        cursor.down();
+        assert_eq!(cursor.start.column, 1, "first");
+        cursor.down();
+        assert_eq!(cursor.start.column, 1, "second");
+        cursor.up();
+        assert_eq!(cursor.start.column, 1, "third");
+        cursor.up();
+        assert_eq!(cursor.start.column, 2, "fourth");
+    }
+
+    #[test]
+    fn remembering_sideways_hilly() {
+        let mut cursor = Cursor::new(vec![5, 1, 2]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 4, "beginning");
+        cursor.down();
+        assert_eq!(cursor.start.column, 1, "first");
+        cursor.down();
+        assert_eq!(cursor.start.column, 2, "second");
+        cursor.up();
+        assert_eq!(cursor.start.column, 1, "third");
+        cursor.up();
+        assert_eq!(cursor.start.column, 4, "fourth");
+    }
+
+    #[test]
+    fn remembering_sideways_tall_flat() {
+        let mut cursor = Cursor::new(vec![5, 5, 5]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 3, "beginning");
+        cursor.down();
+        assert_eq!(cursor.start.column, 3, "first");
+        cursor.down();
+        assert_eq!(cursor.start.column, 3, "second");
+        cursor.up();
+        assert_eq!(cursor.start.column, 3, "third");
+        cursor.up();
+        assert_eq!(cursor.start.column, 3, "fourth");
     }
 }
