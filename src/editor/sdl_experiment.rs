@@ -73,6 +73,10 @@ pub mod sdl2 {
 
             if pressed_keys.contains(&Keycode::Delete) {
                 cursor.delete();
+            } else if pressed_keys.contains(&Keycode::Backspace) {
+                cursor.backspace();
+            } else if pressed_keys.len() > 0 {
+                cursor.add();
             }
 
             for (line_index, length) in cursor.line_lengths.iter().enumerate() {

@@ -37,6 +37,12 @@ pub mod cursor {
                 line_lengths: line_lengths,
             }
         }
+        pub fn add(&mut self) {
+            if &self.start == &self.end {
+                self.line_lengths[self.start.line] += 1;
+                self.right();
+            }
+        }
         pub fn delete(&mut self) {
             if &self.start == &self.end {
                 if &self.start.column == &self.line_lengths[self.start.line] {
@@ -47,6 +53,14 @@ pub mod cursor {
                     }
                 } else {
                     self.line_lengths[self.start.line] -= 1;
+                }
+            }
+        }
+        pub fn backspace(&mut self) {
+            if &self.start == &self.end {
+                if self.start.column != 0 || self.start.line != 0 {
+                    self.left();
+                    self.delete();
                 }
             }
         }
@@ -205,5 +219,34 @@ pub mod cursor {
         cursor.down();
         cursor.delete();
         assert_eq!(cursor.line_lengths, vec![4, 2]);
+    }
+
+    #[test]
+    fn backspace() {
+        let mut cursor = Cursor::new(vec![2, 2, 2]);
+        cursor.down();
+        cursor.right();
+        assert_eq!(cursor.start.column, 1);
+        assert_eq!(cursor.start.line, 1);
+        cursor.backspace();
+        assert_eq!(cursor.start.column, 0);
+        assert_eq!(cursor.line_lengths, vec![2, 1, 2]);
+        cursor.backspace();
+        assert_eq!(cursor.start.line, 0);
+        assert_eq!(cursor.start.column, 2);
+        assert_eq!(cursor.line_lengths, vec![3, 2]);
+    }
+
+    #[test]
+    fn add() {
+        let mut cursor = Cursor::new(vec![5]);
+        assert_eq!(cursor.start.column, 0, "initial column");
+        cursor.add();
+        assert_eq!(cursor.start.column, 1, "column after adding");
+        assert_eq!(cursor.line_lengths, vec![6], "line lengths after adding");
+
+        let mut empty = Cursor::new(vec![0]);
+        empty.add();
+        assert_eq!(empty.line_lengths, vec![1]);
     }
 }
