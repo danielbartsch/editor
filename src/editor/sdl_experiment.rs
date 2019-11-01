@@ -31,15 +31,13 @@ pub mod sdl2 {
         canvas.present();
 
         let mut event_pump = sdl_context.event_pump().unwrap();
-        let mut x = 0;
-        let mut y = 0;
 
         let mut cursor = Cursor::new(vec![
             1, 4, 27, 1, 35, 90, 70, 10, 43, 1, 1, 1, 10, 10, 10, 1,
         ]);
 
         'running: loop {
-            canvas.set_draw_color(Color::RGB(30, 64, 255));
+            canvas.set_draw_color(Color::RGB(40, 40, 40));
             canvas.clear();
             for event in event_pump.poll_iter() {
                 match event {
@@ -52,7 +50,7 @@ pub mod sdl2 {
                 }
             }
 
-            canvas.set_draw_color(Color::RGB(64, 255, 30));
+            canvas.set_draw_color(Color::RGB(80, 80, 80));
 
             let mut pressed_keys = HashSet::new();
             pressed_keys = event_pump
@@ -61,27 +59,17 @@ pub mod sdl2 {
                 .filter_map(Keycode::from_scancode)
                 .collect();
 
-            x += if pressed_keys.contains(&Keycode::Right) {
+            if pressed_keys.contains(&Keycode::Right) {
                 cursor.right();
-                1
             } else if pressed_keys.contains(&Keycode::Left) {
                 cursor.left();
-                -1
-            } else {
-                0
-            };
+            }
 
-            y += if pressed_keys.contains(&Keycode::Down) {
+            if pressed_keys.contains(&Keycode::Down) {
                 cursor.down();
-                1
             } else if pressed_keys.contains(&Keycode::Up) {
                 cursor.up();
-                -1
-            } else {
-                0
-            };
-
-            println!("cursor: {:?}", cursor);
+            }
 
             for (line_index, length) in cursor.line_lengths.iter().enumerate() {
                 let coords = get_line_coords_line_draw(length);
@@ -102,26 +90,7 @@ pub mod sdl2 {
                 }
             }
 
-            let coords = get_unit_circle_coords_line_draw(42);
-            for (index, (x1, y1)) in coords.iter().enumerate() {
-                if index < (coords.len() - 1) {
-                    let (x2, y2) = coords[index + 1];
-                    canvas
-                        .draw_line(
-                            (
-                                ((x1 * 50.0) as i32 + x * 2) % window_width as i32,
-                                ((y1 * 50.0) as i32 + y * 2) % window_height as i32,
-                            ),
-                            (
-                                ((x2 * 50.0) as i32 + x * 2) % window_width as i32,
-                                ((y2 * 50.0) as i32 + y * 2) % window_height as i32,
-                            ),
-                        )
-                        .unwrap();
-                }
-            }
-
-            canvas.set_draw_color(Color::RGB(255, 64, 30));
+            canvas.set_draw_color(Color::RGB(200, 200, 200));
             canvas
                 .draw_line(
                     (
@@ -137,24 +106,6 @@ pub mod sdl2 {
 
             canvas.present();
             ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 16));
-        }
-    }
-
-    fn get_unit_circle_coords(coord_count: u16) -> Vec<(f64, f64)> {
-        (0..coord_count)
-            .map(|degrees| {
-                (((degrees as f64) / (coord_count as f64)) * 2.0 * std::f64::consts::PI).sin_cos()
-            })
-            .collect::<Vec<(f64, f64)>>()
-    }
-
-    fn get_unit_circle_coords_line_draw(coord_count: u16) -> Vec<(f64, f64)> {
-        let mut coords = get_unit_circle_coords(coord_count);
-        if coords.len() > 0 {
-            coords.push(coords[0]);
-            coords
-        } else {
-            coords
         }
     }
 
