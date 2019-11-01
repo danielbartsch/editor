@@ -72,43 +72,45 @@ pub mod cursor {
             }
         }
         pub fn up(&mut self) {
-            if &self.start == &self.end {
-                if &self.start.line > &0 {
-                    self.start.line -= 1;
-                    self.end.line -= 1;
-                    let upper_line_max_column = self.line_lengths.get(self.start.line).unwrap();
-                    if &self.start.column != &self.start.column_offset
-                        && &self.start.column < &self.start.column_offset
-                        && &self.start.column_offset >= upper_line_max_column
-                    {
-                        self.start.column = self.start.column_offset;
-                        self.end.column = self.end.column_offset;
-                    } else if &self.start.column > upper_line_max_column {
-                        self.start.column = *upper_line_max_column;
-                        self.end.column = *upper_line_max_column;
-                    }
-                }
-            }
+            self.vertical(-1);
         }
         pub fn down(&mut self) {
+            self.vertical(1);
+        }
+
+        fn vertical(&mut self, direction: isize) {
             if &self.start == &self.end {
-                if &self.start.line < &(self.line_lengths.len() - 1) {
-                    self.start.line += 1;
-                    self.end.line += 1;
-                    let lower_line_max_column = self.line_lengths.get(self.start.line).unwrap();
-                    if &self.start.column != &self.start.column_offset
-                        && &self.start.column < &self.start.column_offset
-                        && &self.start.column_offset >= lower_line_max_column
-                    {
-                        println!("HIYA");
-                        self.start.column = self.start.column_offset;
-                        self.end.column = self.end.column_offset;
-                    } else if &self.start.column > lower_line_max_column {
-                        println!("THER");
-                        self.start.column = *lower_line_max_column;
-                        self.end.column = *lower_line_max_column;
-                    }
-                }
+                self.vertical_movement_line(direction);
+                self.vertical_movement_column();
+            }
+        }
+        fn vertical_movement_line(&mut self, direction: isize) {
+            if (self.start.line as isize + direction) as usize > self.line_lengths.len() - 1 {
+                self.start.line = self.line_lengths.len() - 1;
+                self.end.line = self.line_lengths.len() - 1;
+            } else if self.start.line as isize + direction <= 0 {
+                self.start.line = 0;
+                self.end.line = 0;
+            } else {
+                self.start.line = ((self.start.line as isize) + direction) as usize;
+                self.end.line = ((self.end.line as isize) + direction) as usize;
+            }
+        }
+
+        fn vertical_movement_column(&mut self) {
+            let next_line_max_column = self.line_lengths.get(self.start.line).unwrap();
+            if &self.start.column > next_line_max_column
+                || &self.start.column < &self.start.column_offset
+                    && &self.start.column < next_line_max_column
+                    && &self.start.column_offset > next_line_max_column
+            {
+                self.start.column = *next_line_max_column;
+                self.end.column = *next_line_max_column;
+            } else if &self.start.column < &self.start.column_offset
+                && &self.start.column < next_line_max_column
+            {
+                self.start.column = self.start.column_offset;
+                self.end.column = self.end.column_offset;
             }
         }
     }
@@ -148,7 +150,7 @@ pub mod cursor {
     }
 
     #[test]
-    fn remembering_sideways_tall_flat() {
+    fn staying_on_same_column() {
         let mut cursor = Cursor::new(vec![5, 5, 5]);
         cursor.right();
         cursor.right();
