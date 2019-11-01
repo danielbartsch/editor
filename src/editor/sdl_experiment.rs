@@ -117,6 +117,37 @@ pub mod sdl2 {
                     ),
                 )
                 .unwrap();
+            if cursor.start != cursor.end {
+                canvas
+                    .draw_line(
+                        (
+                            cursor.end.column as i32 * CHARACTER_WIDTH,
+                            cursor.end.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
+                        ),
+                        (
+                            cursor.end.column as i32 * CHARACTER_WIDTH,
+                            cursor.end.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                + CHARACTER_HEIGHT,
+                        ),
+                    )
+                    .unwrap();
+                if cursor.start.line == cursor.end.line {
+                    canvas
+                        .draw_line(
+                            (
+                                cursor.start.column as i32 * CHARACTER_WIDTH,
+                                cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                            (
+                                cursor.end.column as i32 * CHARACTER_WIDTH,
+                                cursor.end.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                        )
+                        .unwrap();
+                }
+            }
 
             canvas.present();
             ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 16));
