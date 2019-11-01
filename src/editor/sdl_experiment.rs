@@ -71,6 +71,10 @@ pub mod sdl2 {
                 cursor.up();
             }
 
+            if pressed_keys.contains(&Keycode::Delete) {
+                cursor.delete();
+            }
+
             for (line_index, length) in cursor.line_lengths.iter().enumerate() {
                 let coords = get_line_coords_line_draw(length);
 

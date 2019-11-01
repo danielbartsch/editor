@@ -37,6 +37,19 @@ pub mod cursor {
                 line_lengths: line_lengths,
             }
         }
+        pub fn delete(&mut self) {
+            if &self.start == &self.end {
+                if &self.start.column == &self.line_lengths[self.start.line] {
+                    if self.start.line + 1 < self.line_lengths.len() {
+                        self.line_lengths[self.start.line] +=
+                            self.line_lengths[self.start.line + 1];
+                        self.line_lengths.remove(self.start.line + 1);
+                    }
+                } else {
+                    self.line_lengths[self.start.line] -= 1;
+                }
+            }
+        }
         pub fn left(&mut self) {
             if &self.start == &self.end {
                 if &self.start.column == &0 {
@@ -178,5 +191,19 @@ pub mod cursor {
         assert_eq!(cursor.start.line, 0, "first line");
         cursor.up();
         assert_eq!(cursor.start.line, 0, "should stay on first line");
+    }
+
+    #[test]
+    fn delete() {
+        let mut cursor = Cursor::new(vec![2, 2, 2]);
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 2);
+        cursor.delete();
+        assert_eq!(cursor.start.column, 2);
+        assert_eq!(cursor.line_lengths, vec![4, 2]);
+        cursor.down();
+        cursor.delete();
+        assert_eq!(cursor.line_lengths, vec![4, 2]);
     }
 }
