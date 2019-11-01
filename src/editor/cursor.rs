@@ -76,6 +76,19 @@ pub mod cursor {
                 self.end.column = 0;
             }
         }
+        pub fn home(&mut self) {
+            if &self.start == &self.end {
+                if self.start.column == 0
+                    && self.line_lengths[self.start.line] >= self.start.column_offset
+                {
+                    self.start.column = self.start.column_offset;
+                    self.end.column = self.end.column_offset;
+                } else {
+                    self.start.column = 0;
+                    self.end.column = 0;
+                }
+            }
+        }
         pub fn left(&mut self) {
             if &self.start == &self.end {
                 if &self.start.column == &0 {
@@ -284,5 +297,31 @@ pub mod cursor {
             "column after new line from line split"
         );
         assert_eq!(cursor.line_lengths, vec![5, 0, 5, 5]);
+    }
+
+    #[test]
+    fn home() {
+        let mut cursor = Cursor::new(vec![10, 0, 4]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 4, "initial column");
+        cursor.home();
+        assert_eq!(cursor.start.column, 0, "home column");
+        cursor.home();
+        assert_eq!(
+            cursor.start.column, 4,
+            "home again: go back to where you were"
+        );
+        cursor.down();
+        assert_eq!(cursor.start.column, 0);
+        cursor.home();
+        assert_eq!(cursor.start.column, 0, "empty line: stay there");
+        cursor.home();
+        assert_eq!(
+            cursor.start.column, 0,
+            "stay there even after twice home-ing"
+        );
     }
 }
