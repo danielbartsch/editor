@@ -59,6 +59,9 @@ pub mod sdl2 {
                 .filter_map(Keycode::from_scancode)
                 .collect();
 
+            let do_select_text =
+                pressed_keys.contains(&Keycode::LShift) || pressed_keys.contains(&Keycode::RShift);
+
             if pressed_keys.contains(&Keycode::Right) {
                 cursor.right();
             } else if pressed_keys.contains(&Keycode::Left) {
@@ -74,7 +77,7 @@ pub mod sdl2 {
             } else if pressed_keys.contains(&Keycode::Return) {
                 cursor.new_line();
             } else if pressed_keys.contains(&Keycode::Home) {
-                cursor.home();
+                cursor.home(do_select_text);
             } else if pressed_keys.contains(&Keycode::End) {
                 cursor.end();
             } else if pressed_keys.len() > 0 {

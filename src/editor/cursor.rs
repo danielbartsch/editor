@@ -76,15 +76,17 @@ pub mod cursor {
                 self.end.column = 0;
             }
         }
-        pub fn home(&mut self) {
-            if &self.start == &self.end {
-                if self.start.column == 0
-                    && self.line_lengths[self.start.line] >= self.start.column_offset
-                {
-                    self.start.column = self.start.column_offset;
+        pub fn home(&mut self, select: bool) {
+            if self.start.column == 0
+                && self.line_lengths[self.start.line] >= self.start.column_offset
+            {
+                self.start.column = self.start.column_offset;
+                if !select {
                     self.end.column = self.end.column_offset;
-                } else {
-                    self.start.column = 0;
+                }
+            } else {
+                self.start.column = 0;
+                if !select {
                     self.end.column = 0;
                 }
             }
@@ -368,18 +370,50 @@ pub mod cursor {
         cursor.right();
         cursor.right();
         assert_eq!(cursor.start.column, 4, "initial column");
-        cursor.home();
+        cursor.home(false);
         assert_eq!(cursor.start.column, 0, "home column");
-        cursor.home();
+        cursor.home(false);
         assert_eq!(
             cursor.start.column, 4,
             "home again: go back to where you were"
         );
         cursor.down();
         assert_eq!(cursor.start.column, 0);
-        cursor.home();
+        cursor.home(false);
         assert_eq!(cursor.start.column, 0, "empty line: stay there");
-        cursor.home();
+        cursor.home(false);
+        assert_eq!(
+            cursor.start.column, 0,
+            "stay there even after twice home-ing"
+        );
+    }
+
+    #[test]
+    fn home_select() {
+        let mut cursor = Cursor::new(vec![10, 0, 4]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 4, "initial start column");
+        assert_eq!(cursor.end.column, 4, "initial end column");
+        cursor.home(true);
+        assert_eq!(cursor.start.column, 0, "start home column");
+        assert_eq!(cursor.end.column, 4, "same end column");
+        cursor.home(true);
+        assert_eq!(
+            cursor.start.column, 4,
+            "home again: go back to where you were"
+        );
+        assert_eq!(
+            cursor.end.column, 4,
+            "home again: end column still the same"
+        );
+        cursor.down();
+        assert_eq!(cursor.start.column, 0);
+        cursor.home(true);
+        assert_eq!(cursor.start.column, 0, "empty line: stay there");
+        cursor.home(true);
         assert_eq!(
             cursor.start.column, 0,
             "stay there even after twice home-ing"
