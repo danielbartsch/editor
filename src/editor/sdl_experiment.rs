@@ -75,6 +75,8 @@ pub mod sdl2 {
                 cursor.delete();
             } else if pressed_keys.contains(&Keycode::Backspace) {
                 cursor.backspace();
+            } else if pressed_keys.contains(&Keycode::Return) {
+                cursor.new_line();
             } else if pressed_keys.len() > 0 {
                 cursor.add();
             }

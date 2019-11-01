@@ -64,6 +64,18 @@ pub mod cursor {
                 }
             }
         }
+        pub fn new_line(&mut self) {
+            if &self.start == &self.end {
+                let remaining_length = self.line_lengths[self.start.line] - self.start.column;
+                self.line_lengths[self.start.line] -= remaining_length;
+                self.line_lengths
+                    .insert(self.start.line + 1, remaining_length);
+                self.start.line += 1;
+                self.end.line += 1;
+                self.start.column = 0;
+                self.end.column = 0;
+            }
+        }
         pub fn left(&mut self) {
             if &self.start == &self.end {
                 if &self.start.column == &0 {
@@ -248,5 +260,29 @@ pub mod cursor {
         let mut empty = Cursor::new(vec![0]);
         empty.add();
         assert_eq!(empty.line_lengths, vec![1]);
+    }
+
+    #[test]
+    fn new_line() {
+        let mut cursor = Cursor::new(vec![5, 10]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 5, "initial column");
+        assert_eq!(cursor.start.line, 0, "initial line");
+        cursor.new_line();
+        assert_eq!(cursor.start.column, 0, "column after new line");
+        assert_eq!(cursor.start.line, 1, "line after new line");
+        assert_eq!(cursor.line_lengths, vec![5, 0, 10]);
+        cursor.down();
+        assert_eq!(cursor.start.column, 5, "column after coming from new line");
+        cursor.new_line();
+        assert_eq!(
+            cursor.start.column, 0,
+            "column after new line from line split"
+        );
+        assert_eq!(cursor.line_lengths, vec![5, 0, 5, 5]);
     }
 }
