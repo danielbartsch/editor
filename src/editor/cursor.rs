@@ -183,7 +183,54 @@ pub mod cursor {
     }
 
     #[test]
-    fn remembering_sideways_flat() {
+    fn right() {
+        let mut empty = Cursor::new(vec![0]);
+        empty.right();
+        assert_eq!(empty.start.column, 0);
+
+        let mut cursor = Cursor::new(vec![3, 0, 2]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 3);
+        cursor.right();
+        assert_eq!(cursor.start.column, 0);
+        assert_eq!(cursor.start.line, 1);
+        cursor.right();
+        assert_eq!(cursor.start.column, 0);
+        assert_eq!(cursor.start.line, 2);
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 2);
+        cursor.right();
+        assert_eq!(cursor.start.column, 2);
+    }
+
+    #[test]
+    fn left() {
+        let mut empty = Cursor::new(vec![0]);
+        empty.left();
+        assert_eq!(empty.start.column, 0);
+
+        let mut cursor = Cursor::new(vec![3, 0, 2]);
+        assert_eq!(cursor.start.column, 0);
+        cursor.left();
+        assert_eq!(cursor.start.column, 0);
+        cursor.down();
+        cursor.down();
+        cursor.right();
+        assert_eq!(cursor.start.column, 1);
+        assert_eq!(cursor.start.line, 2);
+        cursor.left();
+        assert_eq!(cursor.start.column, 0);
+        cursor.left();
+        assert_eq!(cursor.start.column, 0);
+        cursor.left();
+        assert_eq!(cursor.start.column, 3);
+    }
+
+    #[test]
+    fn down_up_remembering_sideways_flat() {
         let mut cursor = Cursor::new(vec![3, 1, 1]);
         cursor.right();
         cursor.right();
@@ -199,7 +246,7 @@ pub mod cursor {
     }
 
     #[test]
-    fn remembering_sideways_hilly() {
+    fn down_up_remembering_sideways_hilly() {
         let mut cursor = Cursor::new(vec![5, 1, 2]);
         cursor.right();
         cursor.right();
@@ -217,7 +264,7 @@ pub mod cursor {
     }
 
     #[test]
-    fn staying_on_same_column() {
+    fn down_up_staying_on_same_column() {
         let mut cursor = Cursor::new(vec![5, 5, 5]);
         cursor.right();
         cursor.right();
