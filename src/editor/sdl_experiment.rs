@@ -79,7 +79,7 @@ pub mod sdl2 {
             } else if pressed_keys.contains(&Keycode::Home) {
                 cursor.home(do_select_text);
             } else if pressed_keys.contains(&Keycode::End) {
-                cursor.end();
+                cursor.end(do_select_text);
             } else if pressed_keys.len() > 0 {
                 cursor.add();
             }

@@ -91,18 +91,20 @@ pub mod cursor {
                 }
             }
         }
-        pub fn end(&mut self) {
-            if &self.start == &self.end {
-                let current_line_max_column = self.line_lengths[self.start.line];
-                if self.start.column == current_line_max_column
-                    && current_line_max_column >= self.start.column_offset
-                {
+        pub fn end(&mut self, select: bool) {
+            let current_line_max_column = self.line_lengths[self.end.line];
+            if self.end.column == current_line_max_column
+                && current_line_max_column >= self.end.column_offset
+            {
+                if !select {
                     self.start.column = self.start.column_offset;
-                    self.end.column = self.end.column_offset;
-                } else {
-                    self.start.column = current_line_max_column;
-                    self.end.column = current_line_max_column;
                 }
+                self.end.column = self.end.column_offset;
+            } else {
+                if !select {
+                    self.start.column = current_line_max_column;
+                }
+                self.end.column = current_line_max_column;
             }
         }
         pub fn left(&mut self) {
@@ -418,6 +420,7 @@ pub mod cursor {
             cursor.start.column, 0,
             "stay there even after twice home-ing"
         );
+        assert_eq!(cursor.end.column, 0, "stay there even after twice home-ing");
     }
 
     #[test]
@@ -428,21 +431,50 @@ pub mod cursor {
         cursor.right();
         cursor.right();
         assert_eq!(cursor.start.column, 4, "initial column");
-        cursor.end();
+        cursor.end(false);
         assert_eq!(cursor.start.column, 10, "end column");
-        cursor.end();
+        cursor.end(false);
         assert_eq!(
             cursor.start.column, 4,
             "end again: go back to where you were"
         );
         cursor.down();
         assert_eq!(cursor.start.column, 0);
-        cursor.end();
+        cursor.end(false);
         assert_eq!(cursor.start.column, 0, "empty line: stay there");
-        cursor.end();
+        cursor.end(false);
         assert_eq!(
             cursor.start.column, 0,
             "stay there even after twice end-ing"
         );
+    }
+
+    #[test]
+    fn end_select() {
+        let mut cursor = Cursor::new(vec![10, 0, 4]);
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 4, "initial start column");
+        assert_eq!(cursor.end.column, 4, "initial end column");
+        cursor.end(true);
+        assert_eq!(cursor.start.column, 4, "end column");
+        assert_eq!(cursor.end.column, 10, "end column");
+        cursor.end(true);
+        assert_eq!(cursor.end.column, 4, "end again: go back to where you were");
+        assert_eq!(cursor.start.column, 4, "end again: start is still the same");
+        cursor.down();
+        assert_eq!(cursor.start.column, 0);
+        assert_eq!(cursor.end.column, 0);
+        cursor.end(true);
+        assert_eq!(cursor.start.column, 0, "empty line: stay there");
+        assert_eq!(cursor.end.column, 0, "empty line: stay there");
+        cursor.end(true);
+        assert_eq!(
+            cursor.start.column, 0,
+            "stay there even after twice end-ing"
+        );
+        assert_eq!(cursor.end.column, 0, "stay there even after twice end-ing");
     }
 }
