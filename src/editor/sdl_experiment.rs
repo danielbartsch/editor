@@ -21,7 +21,7 @@ pub mod sdl2 {
         let window_height = 350;
 
         let window = video_subsystem
-            .window("My Rusty Experiment", window_width, window_height)
+            .window("Editor", window_width, window_height)
             .position_centered()
             .build()
             .unwrap();
