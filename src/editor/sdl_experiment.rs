@@ -63,15 +63,11 @@ pub mod sdl2 {
                 cursor.right();
             } else if pressed_keys.contains(&Keycode::Left) {
                 cursor.left();
-            }
-
-            if pressed_keys.contains(&Keycode::Down) {
+            } else if pressed_keys.contains(&Keycode::Down) {
                 cursor.down();
             } else if pressed_keys.contains(&Keycode::Up) {
                 cursor.up();
-            }
-
-            if pressed_keys.contains(&Keycode::Delete) {
+            } else if pressed_keys.contains(&Keycode::Delete) {
                 cursor.delete();
             } else if pressed_keys.contains(&Keycode::Backspace) {
                 cursor.backspace();
