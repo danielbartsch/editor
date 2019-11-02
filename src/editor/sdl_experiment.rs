@@ -67,9 +67,9 @@ pub mod sdl2 {
             } else if pressed_keys.contains(&Keycode::Left) {
                 cursor.left();
             } else if pressed_keys.contains(&Keycode::Down) {
-                cursor.down();
+                cursor.down(do_select_text);
             } else if pressed_keys.contains(&Keycode::Up) {
-                cursor.up();
+                cursor.up(do_select_text);
             } else if pressed_keys.contains(&Keycode::Delete) {
                 cursor.delete();
             } else if pressed_keys.contains(&Keycode::Backspace) {
@@ -117,6 +117,31 @@ pub mod sdl2 {
                 )
                 .unwrap();
             if cursor.start != cursor.end {
+                for current_line in cursor.start.line..(cursor.end.line + 1) {
+                    canvas
+                        .draw_line(
+                            (
+                                if cursor.start.line == current_line {
+                                    cursor.start.column as i32 * CHARACTER_WIDTH
+                                } else {
+                                    0
+                                },
+                                current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                            (
+                                if cursor.end.line == current_line {
+                                    cursor.end.column as i32 * CHARACTER_WIDTH
+                                } else {
+                                    cursor.line_lengths[current_line] as i32 * CHARACTER_WIDTH
+                                },
+                                current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                        )
+                        .unwrap();
+                }
+                canvas.set_draw_color(Color::RGB(135, 200, 200));
                 canvas
                     .draw_line(
                         (
@@ -130,22 +155,6 @@ pub mod sdl2 {
                         ),
                     )
                     .unwrap();
-                if cursor.start.line == cursor.end.line {
-                    canvas
-                        .draw_line(
-                            (
-                                cursor.start.column as i32 * CHARACTER_WIDTH,
-                                cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                    + CHARACTER_HEIGHT / 2,
-                            ),
-                            (
-                                cursor.end.column as i32 * CHARACTER_WIDTH,
-                                cursor.end.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                    + CHARACTER_HEIGHT / 2,
-                            ),
-                        )
-                        .unwrap();
-                }
             }
 
             canvas.present();

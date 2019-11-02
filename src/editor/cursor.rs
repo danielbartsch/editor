@@ -141,47 +141,81 @@ pub mod cursor {
                 self.end.column_offset = self.end.column;
             }
         }
-        pub fn up(&mut self) {
-            self.vertical(-1);
+        pub fn up(&mut self, select: bool) {
+            self.vertical(-1, select);
         }
-        pub fn down(&mut self) {
-            self.vertical(1);
+        pub fn down(&mut self, select: bool) {
+            self.vertical(1, select);
         }
 
-        fn vertical(&mut self, direction: isize) {
-            if &self.start == &self.end {
-                self.vertical_movement_line(direction);
-                self.vertical_movement_column();
-            }
+        fn vertical(&mut self, direction: isize, select: bool) {
+            let move_start = !select || direction < 0;
+            let move_end = !select || direction > 0;
+            self.vertical_movement_line(direction, select, move_start, move_end);
+            self.vertical_movement_column(direction, move_start, move_end);
         }
-        fn vertical_movement_line(&mut self, direction: isize) {
-            let next_line = self.start.line as isize + direction;
-            if next_line > (self.line_lengths.len() - 1) as isize {
-                self.start.line = self.line_lengths.len() - 1;
-                self.end.line = self.line_lengths.len() - 1;
-            } else if next_line <= 0 {
-                self.start.line = 0;
-                self.end.line = 0;
+        fn vertical_movement_line(
+            &mut self,
+            direction: isize,
+            select: bool,
+            move_start: bool,
+            move_end: bool,
+        ) {
+            let next_move_to_line = if direction < 0 {
+                self.start.line as isize
             } else {
-                self.start.line = ((self.start.line as isize) + direction) as usize;
-                self.end.line = ((self.end.line as isize) + direction) as usize;
+                self.end.line as isize
+            } + direction;
+            let (new_start_line, new_end_line) =
+                if next_move_to_line > (self.line_lengths.len() - 1) as isize {
+                    (self.line_lengths.len() - 1, self.line_lengths.len() - 1)
+                } else if next_move_to_line <= 0 {
+                    (0, 0)
+                } else {
+                    if !select && self.start.line != self.end.line {
+                        (next_move_to_line as usize, next_move_to_line as usize)
+                    } else {
+                        (
+                            ((self.start.line as isize) + direction) as usize,
+                            ((self.end.line as isize) + direction) as usize,
+                        )
+                    }
+                };
+            if move_start {
+                self.start.line = new_start_line;
+            }
+            if move_end {
+                self.end.line = new_end_line;
             }
         }
 
-        fn vertical_movement_column(&mut self) {
-            let next_line_max_column = self.line_lengths.get(self.start.line).unwrap();
-            if &self.start.column > next_line_max_column
+        fn vertical_movement_column(&mut self, direction: isize, move_start: bool, move_end: bool) {
+            let next_line_max_column = self
+                .line_lengths
+                .get(if direction < 0 {
+                    self.start.line
+                } else {
+                    self.end.line
+                })
+                .unwrap();
+            let (new_start_column, new_end_column) = if &self.start.column > next_line_max_column
                 || &self.start.column < &self.start.column_offset
                     && &self.start.column < next_line_max_column
                     && &self.start.column_offset > next_line_max_column
             {
-                self.start.column = *next_line_max_column;
-                self.end.column = *next_line_max_column;
+                (*next_line_max_column, *next_line_max_column)
             } else if &self.start.column < &self.start.column_offset
                 && &self.start.column < next_line_max_column
             {
-                self.start.column = self.start.column_offset;
-                self.end.column = self.end.column_offset;
+                (self.start.column_offset, self.end.column_offset)
+            } else {
+                (self.start.column, self.end.column)
+            };
+            if move_start {
+                self.start.column = new_start_column;
+            }
+            if move_end {
+                self.end.column = new_end_column;
             }
         }
     }
@@ -220,8 +254,8 @@ pub mod cursor {
         assert_eq!(cursor.start.column, 0);
         cursor.left();
         assert_eq!(cursor.start.column, 0);
-        cursor.down();
-        cursor.down();
+        cursor.down(false);
+        cursor.down(false);
         cursor.right();
         assert_eq!(cursor.start.column, 1);
         assert_eq!(cursor.start.line, 2);
@@ -234,18 +268,61 @@ pub mod cursor {
     }
 
     #[test]
+    fn up_select() {
+        let mut cursor = Cursor::new(vec![1, 5, 5, 5]);
+        cursor.down(false);
+        cursor.down(false);
+        cursor.down(false);
+        cursor.up(true);
+        assert_eq!(cursor.start.line, 2, "select start.line");
+        assert_eq!(cursor.end.line, 3, "select end.line");
+        cursor.up(false);
+        assert_eq!(cursor.start.line, 1, "move start.line");
+        assert_eq!(cursor.end.line, 1, "move end.line");
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 2);
+        assert_eq!(cursor.end.column, 2);
+        cursor.up(true);
+        assert_eq!(cursor.start.column, 1);
+        assert_eq!(cursor.end.column, 2);
+        assert_eq!(cursor.start.line, 0, "move start.line");
+        assert_eq!(cursor.end.line, 1, "move end.line");
+    }
+
+    #[test]
+    fn down_select() {
+        let mut cursor = Cursor::new(vec![5, 5, 5, 1]);
+        cursor.down(true);
+        assert_eq!(cursor.start.line, 0, "select start.line");
+        assert_eq!(cursor.end.line, 1, "select end.line");
+        cursor.down(false);
+        assert_eq!(cursor.start.line, 2, "move start.line");
+        assert_eq!(cursor.end.line, 2, "move end.line");
+        cursor.right();
+        cursor.right();
+        assert_eq!(cursor.start.column, 2);
+        assert_eq!(cursor.end.column, 2);
+        cursor.down(true);
+        assert_eq!(cursor.start.column, 2, "left behind column");
+        assert_eq!(cursor.end.column, 1, "next column");
+        assert_eq!(cursor.start.line, 2, "left behind line");
+        assert_eq!(cursor.end.line, 3, "next line");
+    }
+
+    #[test]
     fn down_up_remembering_sideways_flat() {
         let mut cursor = Cursor::new(vec![3, 1, 1]);
         cursor.right();
         cursor.right();
         assert_eq!(cursor.start.column, 2, "beginning");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 1, "first");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 1, "second");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.column, 1, "third");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.column, 2, "fourth");
     }
 
@@ -257,13 +334,13 @@ pub mod cursor {
         cursor.right();
         cursor.right();
         assert_eq!(cursor.start.column, 4, "beginning");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 1, "first");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 2, "second");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.column, 1, "third");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.column, 4, "fourth");
     }
 
@@ -274,26 +351,26 @@ pub mod cursor {
         cursor.right();
         cursor.right();
         assert_eq!(cursor.start.column, 3, "beginning");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 3, "first");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 3, "second");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.column, 3, "third");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.column, 3, "fourth");
     }
 
     #[test]
     fn wrap_around() {
         let mut cursor = Cursor::new(vec![1, 1]);
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.line, 1, "last line");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.line, 1, "should stay on last line");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.line, 0, "first line");
-        cursor.up();
+        cursor.up(false);
         assert_eq!(cursor.start.line, 0, "should stay on first line");
     }
 
@@ -306,7 +383,7 @@ pub mod cursor {
         cursor.delete();
         assert_eq!(cursor.start.column, 2);
         assert_eq!(cursor.line_lengths, vec![4, 2]);
-        cursor.down();
+        cursor.down(false);
         cursor.delete();
         assert_eq!(cursor.line_lengths, vec![4, 2]);
     }
@@ -314,7 +391,7 @@ pub mod cursor {
     #[test]
     fn backspace() {
         let mut cursor = Cursor::new(vec![2, 2, 2]);
-        cursor.down();
+        cursor.down(false);
         cursor.right();
         assert_eq!(cursor.start.column, 1);
         assert_eq!(cursor.start.line, 1);
@@ -354,7 +431,7 @@ pub mod cursor {
         assert_eq!(cursor.start.column, 0, "column after new line");
         assert_eq!(cursor.start.line, 1, "line after new line");
         assert_eq!(cursor.line_lengths, vec![5, 0, 10]);
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 5, "column after coming from new line");
         cursor.new_line();
         assert_eq!(
@@ -379,7 +456,7 @@ pub mod cursor {
             cursor.start.column, 4,
             "home again: go back to where you were"
         );
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 0);
         cursor.home(false);
         assert_eq!(cursor.start.column, 0, "empty line: stay there");
@@ -411,7 +488,7 @@ pub mod cursor {
             cursor.end.column, 4,
             "home again: end column still the same"
         );
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 0);
         cursor.home(true);
         assert_eq!(cursor.start.column, 0, "empty line: stay there");
@@ -438,7 +515,7 @@ pub mod cursor {
             cursor.start.column, 4,
             "end again: go back to where you were"
         );
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 0);
         cursor.end(false);
         assert_eq!(cursor.start.column, 0, "empty line: stay there");
@@ -464,7 +541,7 @@ pub mod cursor {
         cursor.end(true);
         assert_eq!(cursor.end.column, 4, "end again: go back to where you were");
         assert_eq!(cursor.start.column, 4, "end again: start is still the same");
-        cursor.down();
+        cursor.down(false);
         assert_eq!(cursor.start.column, 0);
         assert_eq!(cursor.end.column, 0);
         cursor.end(true);
