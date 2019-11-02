@@ -40,7 +40,7 @@ pub mod cursor {
         pub fn add(&mut self) {
             if &self.start == &self.end {
                 self.line_lengths[self.start.line] += 1;
-                self.right();
+                self.right(false);
             }
         }
         pub fn delete(&mut self) {
@@ -124,22 +124,26 @@ pub mod cursor {
                 self.end.column_offset = self.end.column;
             }
         }
-        pub fn right(&mut self) {
-            if &self.start == &self.end {
-                let current_line_max_column = self.line_lengths.get(self.start.line).unwrap();
-                let has_next_line = self.start.line < self.line_lengths.len() - 1;
-                if &self.start.column == current_line_max_column && has_next_line {
-                    self.start.line += 1;
-                    self.end.line += 1;
-                    self.start.column = 0;
-                    self.end.column = 0;
-                } else if &self.start.column < current_line_max_column {
-                    self.start.column += 1;
-                    self.end.column += 1;
-                }
-                self.start.column_offset = self.start.column;
-                self.end.column_offset = self.end.column;
+        pub fn right(&mut self, select: bool) {
+            let move_start = !select;
+            let current_line_max_column = self.line_lengths.get(self.end.line).unwrap();
+            let has_next_line = self.end.line < self.line_lengths.len() - 1;
+            let (new_end_line, new_end_column) =
+                if &self.end.column == current_line_max_column && has_next_line {
+                    (self.end.line + 1, 0)
+                } else if &self.end.column < current_line_max_column {
+                    (self.end.line, self.end.column + 1)
+                } else {
+                    (self.end.line, self.end.column)
+                };
+            if move_start {
+                self.start.line = new_end_line;
+                self.start.column = new_end_column;
+                self.start.column_offset = new_end_column;
             }
+            self.end.line = new_end_line;
+            self.end.column = new_end_column;
+            self.end.column_offset = new_end_column;
         }
         pub fn up(&mut self, select: bool) {
             self.vertical(-1, select);

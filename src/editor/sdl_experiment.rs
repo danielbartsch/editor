@@ -68,7 +68,7 @@ pub mod sdl2 {
                 pressed_keys.contains(&Keycode::LShift) || pressed_keys.contains(&Keycode::RShift);
 
             if pressed_keys.contains(&Keycode::Right) {
-                cursor.right();
+                cursor.right(do_select_text);
             } else if pressed_keys.contains(&Keycode::Left) {
                 cursor.left();
             } else if pressed_keys.contains(&Keycode::Down) {
