@@ -1,5 +1,10 @@
 #[path = "cursor.rs"]
 mod cursor;
+
+#[cfg(test)]
+#[path = "cursor.test.rs"]
+mod tests;
+
 pub mod sdl2 {
     use sdl2::event::Event;
     use sdl2::keyboard::Keycode;
