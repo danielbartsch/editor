@@ -49,33 +49,62 @@ mod tests {
         cursor.right(true);
         cursor.right(true);
         cursor.right(false);
-        assert_eq!(cursor.start.column, 4, "line cursor start column");
-        assert_eq!(cursor.end.column, 4, "line cursor end column");
-        assert_eq!(cursor.start.line, 1, "line cursor start line");
-        assert_eq!(cursor.end.line, 1, "line cursor end line");
+        assert_eq!(cursor.start.column, 4);
+        assert_eq!(cursor.end.column, 4);
+        assert_eq!(cursor.start.line, 1);
+        assert_eq!(cursor.end.line, 1);
     }
 
     #[test]
     fn left() {
         let mut empty = Cursor::new(vec![0]);
-        empty.left();
+        empty.left(false);
         assert_eq!(empty.start.column, 0);
 
         let mut cursor = Cursor::new(vec![3, 0, 2]);
         assert_eq!(cursor.start.column, 0);
-        cursor.left();
-        assert_eq!(cursor.start.column, 0);
+        cursor.left(false);
+        assert_eq!(cursor.start.column, 0, "no change");
         cursor.down(false);
         cursor.down(false);
         cursor.right(false);
         assert_eq!(cursor.start.column, 1);
         assert_eq!(cursor.start.line, 2);
-        cursor.left();
+        cursor.left(false);
+        assert_eq!(cursor.start.column, 0, "beginning of line");
+        cursor.left(false);
+        assert_eq!(cursor.start.column, 0, "beginning/end of line above");
+        cursor.left(false);
+        assert_eq!(cursor.start.column, 3, "end of line above");
+    }
+
+    #[test]
+    fn left_select() {
+        let mut cursor = Cursor::new(vec![2, 5]);
+        cursor.down(false);
+        cursor.left(true);
+        cursor.left(true);
+        assert_eq!(cursor.start.column, 1, "start column");
+        assert_eq!(cursor.end.column, 0, "end column");
+        assert_eq!(cursor.start.line, 0, "start line");
+        assert_eq!(cursor.end.line, 1, "end line");
+        cursor.left(false);
+        assert_eq!(cursor.start.column, 0, "after selection start column");
+        assert_eq!(cursor.end.column, 0, "after selection end column");
+        assert_eq!(cursor.start.line, 0, "after selection start line");
+        assert_eq!(cursor.end.line, 0, "after selection end line");
+        cursor.right(false);
+        cursor.right(false);
+        cursor.left(true);
+        assert_eq!(cursor.start.column, 1);
+        assert_eq!(cursor.end.column, 2);
+        assert_eq!(cursor.start.line, 0);
+        assert_eq!(cursor.end.line, 0);
+        cursor.left(false);
         assert_eq!(cursor.start.column, 0);
-        cursor.left();
-        assert_eq!(cursor.start.column, 0);
-        cursor.left();
-        assert_eq!(cursor.start.column, 3);
+        assert_eq!(cursor.end.column, 0);
+        assert_eq!(cursor.start.line, 0);
+        assert_eq!(cursor.end.line, 0);
     }
 
     #[test]

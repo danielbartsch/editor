@@ -70,7 +70,7 @@ pub mod sdl2 {
             if pressed_keys.contains(&Keycode::Right) {
                 cursor.right(do_select_text);
             } else if pressed_keys.contains(&Keycode::Left) {
-                cursor.left();
+                cursor.left(do_select_text);
             } else if pressed_keys.contains(&Keycode::Down) {
                 cursor.down(do_select_text);
             } else if pressed_keys.contains(&Keycode::Up) {

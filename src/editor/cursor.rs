@@ -59,7 +59,7 @@ pub mod cursor {
         pub fn backspace(&mut self) {
             if &self.start == &self.end {
                 if self.start.column != 0 || self.start.line != 0 {
-                    self.left();
+                    self.left(false);
                     self.delete();
                 }
             }
@@ -107,20 +107,27 @@ pub mod cursor {
                 self.end.column = current_line_max_column;
             }
         }
-        pub fn left(&mut self) {
-            if &self.start == &self.end {
-                if &self.start.column == &0 {
-                    if &self.start.line != &0 {
-                        self.start.line -= 1;
-                        self.end.line -= 1;
-                        self.start.column = *self.line_lengths.get(self.start.line).unwrap();
-                        self.end.column = *self.line_lengths.get(self.end.line).unwrap();
-                    }
+        pub fn left(&mut self, select: bool) {
+            let move_end = !select;
+            let (new_start_line, new_start_column) = if self.start.column == 0 {
+                if self.start.line != 0 {
+                    let previous_line = self.start.line - 1;
+                    (
+                        previous_line,
+                        *self.line_lengths.get(previous_line).unwrap(),
+                    )
                 } else {
-                    self.start.column -= 1;
-                    self.end.column -= 1;
+                    (self.start.line, self.start.column)
                 }
-                self.start.column_offset = self.start.column;
+            } else {
+                (self.start.line, self.start.column - 1)
+            };
+            self.start.column = new_start_column;
+            self.start.line = new_start_line;
+            self.start.column_offset = self.start.column;
+            if move_end {
+                self.end.column = new_start_column;
+                self.end.line = new_start_line;
                 self.end.column_offset = self.end.column;
             }
         }
