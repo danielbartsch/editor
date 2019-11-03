@@ -201,14 +201,12 @@ pub mod cursor {
         }
 
         fn vertical_movement_column(&mut self, direction: isize, move_start: bool, move_end: bool) {
-            let next_line_max_column = self
-                .line_lengths
-                .get(if direction < 0 {
-                    self.start.line
-                } else {
-                    self.end.line
-                })
-                .unwrap();
+            let next_line_index = if direction < 0 {
+                self.start.line
+            } else {
+                self.end.line
+            };
+            let next_line_max_column = self.line_lengths.get(next_line_index).unwrap();
             let (new_start_column, new_end_column) = if &self.start.column > next_line_max_column
                 || &self.start.column < &self.start.column_offset
                     && &self.start.column < next_line_max_column
