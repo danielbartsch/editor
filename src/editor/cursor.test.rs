@@ -460,13 +460,13 @@ mod tests {
     #[test]
     fn add_empty() {
         let mut cursor = Cursor::new(vec![0]);
-        cursor.add();
+        cursor.add('a');
         assert_eq!(cursor.line_lengths, vec![1]);
     }
     #[test]
     fn add() {
         let mut cursor = Cursor::new(vec![5]);
-        cursor.add();
+        cursor.add('b');
         assert_eq!(cursor.current.column, 1);
         assert_eq!(cursor.line_lengths, vec![6]);
     }

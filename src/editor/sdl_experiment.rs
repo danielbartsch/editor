@@ -84,7 +84,40 @@ pub mod sdl2 {
             } else if pressed_keys.contains(&Keycode::End) {
                 cursor.end(is_selecting_text);
             } else if pressed_keys.len() > 0 {
-                cursor.add();
+                for key_code in pressed_keys.drain() {
+                    let maybe_character = match key_code {
+                        Keycode::A => Some('a'),
+                        Keycode::B => Some('b'),
+                        Keycode::C => Some('c'),
+                        Keycode::D => Some('d'),
+                        Keycode::E => Some('e'),
+                        Keycode::F => Some('f'),
+                        Keycode::G => Some('g'),
+                        Keycode::H => Some('h'),
+                        Keycode::I => Some('i'),
+                        Keycode::J => Some('j'),
+                        Keycode::K => Some('k'),
+                        Keycode::L => Some('l'),
+                        Keycode::M => Some('m'),
+                        Keycode::N => Some('n'),
+                        Keycode::O => Some('o'),
+                        Keycode::P => Some('p'),
+                        Keycode::Q => Some('q'),
+                        Keycode::R => Some('r'),
+                        Keycode::S => Some('s'),
+                        Keycode::T => Some('t'),
+                        Keycode::U => Some('u'),
+                        Keycode::V => Some('v'),
+                        Keycode::W => Some('w'),
+                        Keycode::X => Some('x'),
+                        Keycode::Y => Some('y'),
+                        Keycode::Z => Some('z'),
+                        _ => None,
+                    };
+                    if let Some(character) = maybe_character {
+                        cursor.add(character);
+                    }
+                }
             }
 
             for (line_index, length) in cursor.line_lengths.iter().enumerate() {

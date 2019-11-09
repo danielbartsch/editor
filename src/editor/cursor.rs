@@ -37,7 +37,7 @@ pub mod cursor {
                 line_lengths: line_lengths,
             }
         }
-        pub fn add(&mut self) {
+        pub fn add(&mut self, character: char) {
             if &self.current == &self.extender {
                 self.line_lengths[self.current.line] += 1;
                 self.right(false);
