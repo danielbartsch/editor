@@ -170,8 +170,6 @@ pub mod cursor {
                 self.line_lengths.len() - 1
             } else if next_move_to_line <= 0 {
                 0
-            } else if !select && moving_cursor.line != moving_cursor.line {
-                next_move_to_line as usize
             } else {
                 ((moving_cursor.line as isize) + direction) as usize
             };
@@ -185,14 +183,7 @@ pub mod cursor {
             let moving_cursor = self.get_moving_cursor(select);
 
             let next_line_max_column = self.line_lengths.get(moving_cursor.line).unwrap();
-            let new_column = if !select && moving_cursor.column != moving_cursor.column {
-                let actual_new_column = if &moving_cursor.column > next_line_max_column {
-                    next_line_max_column
-                } else {
-                    &moving_cursor.column
-                };
-                *actual_new_column
-            } else if &moving_cursor.column > next_line_max_column
+            let new_column = if &moving_cursor.column > next_line_max_column
                 || &moving_cursor.column < &moving_cursor.column_offset
                     && &moving_cursor.column < next_line_max_column
                     && &moving_cursor.column_offset > next_line_max_column
