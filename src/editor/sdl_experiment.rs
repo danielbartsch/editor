@@ -110,22 +110,23 @@ pub mod sdl2 {
             canvas
                 .draw_line(
                     (
-                        cursor.start.column as i32 * CHARACTER_WIDTH,
-                        cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
+                        cursor.current.column as i32 * CHARACTER_WIDTH,
+                        cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
                     ),
                     (
-                        cursor.start.column as i32 * CHARACTER_WIDTH,
-                        cursor.start.line as i32 * (LINE_GAP + CHARACTER_HEIGHT) + CHARACTER_HEIGHT,
+                        cursor.current.column as i32 * CHARACTER_WIDTH,
+                        cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                            + CHARACTER_HEIGHT,
                     ),
                 )
                 .unwrap();
-            if cursor.start != cursor.end {
-                for current_line in cursor.start.line..(cursor.end.line + 1) {
+            if cursor.current != cursor.extender {
+                for current_line in cursor.current.line..(cursor.extender.line + 1) {
                     canvas
                         .draw_line(
                             (
-                                if cursor.start.line == current_line {
-                                    cursor.start.column as i32 * CHARACTER_WIDTH
+                                if cursor.current.line == current_line {
+                                    cursor.current.column as i32 * CHARACTER_WIDTH
                                 } else {
                                     0
                                 },
@@ -133,8 +134,8 @@ pub mod sdl2 {
                                     + CHARACTER_HEIGHT / 2,
                             ),
                             (
-                                if cursor.end.line == current_line {
-                                    cursor.end.column as i32 * CHARACTER_WIDTH
+                                if cursor.extender.line == current_line {
+                                    cursor.extender.column as i32 * CHARACTER_WIDTH
                                 } else {
                                     cursor.line_lengths[current_line] as i32 * CHARACTER_WIDTH
                                 },
@@ -148,12 +149,12 @@ pub mod sdl2 {
                 canvas
                     .draw_line(
                         (
-                            cursor.end.column as i32 * CHARACTER_WIDTH,
-                            cursor.end.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
+                            cursor.extender.column as i32 * CHARACTER_WIDTH,
+                            cursor.extender.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
                         ),
                         (
-                            cursor.end.column as i32 * CHARACTER_WIDTH,
-                            cursor.end.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                            cursor.extender.column as i32 * CHARACTER_WIDTH,
+                            cursor.extender.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
                                 + CHARACTER_HEIGHT,
                         ),
                     )
