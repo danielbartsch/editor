@@ -121,7 +121,11 @@ pub mod sdl2 {
                 )
                 .unwrap();
             if cursor.current != cursor.extender {
-                for current_line in cursor.current.line..(cursor.extender.line + 1) {
+                for current_line in if cursor.current.line > cursor.extender.line {
+                    cursor.extender.line..(cursor.current.line + 1)
+                } else {
+                    cursor.current.line..(cursor.extender.line + 1)
+                } {
                     canvas
                         .draw_line(
                             (
