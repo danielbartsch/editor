@@ -137,8 +137,8 @@ mod tests {
         cursor.right(false);
         cursor.right(false);
         cursor.left(true);
-        assert_eq!(cursor.current.column, 1);
-        assert_eq!(cursor.extender.column, 2);
+        assert_eq!(cursor.current.column, 2);
+        assert_eq!(cursor.extender.column, 1);
     }
     #[test]
     fn left_select_multiple_lines() {
@@ -148,15 +148,15 @@ mod tests {
         cursor.right(false);
         cursor.left(true);
         cursor.left(true);
-        assert_eq!(cursor.current.column, 0);
-        assert_eq!(cursor.current.line, 1);
-        assert_eq!(cursor.extender.column, 1);
-        assert_eq!(cursor.extender.line, 2);
+        assert_eq!(cursor.current.column, 1);
+        assert_eq!(cursor.current.line, 2);
+        assert_eq!(cursor.extender.column, 0);
+        assert_eq!(cursor.extender.line, 1);
         cursor.left(true);
-        assert_eq!(cursor.current.column, 2);
-        assert_eq!(cursor.current.line, 0);
-        assert_eq!(cursor.extender.column, 1);
-        assert_eq!(cursor.extender.line, 2);
+        assert_eq!(cursor.current.column, 1);
+        assert_eq!(cursor.current.line, 2);
+        assert_eq!(cursor.extender.column, 2);
+        assert_eq!(cursor.extender.line, 0);
     }
     #[test]
     fn left_from_selection_same_line() {
@@ -168,8 +168,8 @@ mod tests {
         assert_eq!(cursor.current.column, 2);
         assert_eq!(cursor.extender.column, 4);
         cursor.left(false);
-        assert_eq!(cursor.current.column, 1);
-        assert_eq!(cursor.extender.column, 1);
+        assert_eq!(cursor.current.column, 3);
+        assert_eq!(cursor.extender.column, 3);
     }
     #[test]
     fn left_from_selection_multiple_lines() {
@@ -179,9 +179,9 @@ mod tests {
         cursor.right(true);
         cursor.left(false);
         assert_eq!(cursor.current.column, 0);
-        assert_eq!(cursor.current.line, 0);
+        assert_eq!(cursor.current.line, 1);
         assert_eq!(cursor.extender.column, 0);
-        assert_eq!(cursor.extender.line, 0);
+        assert_eq!(cursor.extender.line, 1);
     }
     #[test]
     fn up_select_empty() {
@@ -197,9 +197,9 @@ mod tests {
         cursor.right(false);
         cursor.up(true);
         assert_eq!(cursor.current.column, 1);
-        assert_eq!(cursor.current.line, 0);
+        assert_eq!(cursor.current.line, 1);
         assert_eq!(cursor.extender.column, 1);
-        assert_eq!(cursor.extender.line, 1);
+        assert_eq!(cursor.extender.line, 0);
     }
     #[test]
     fn up_select_different_line_lengths() {
@@ -208,15 +208,15 @@ mod tests {
         cursor.down(false);
         cursor.right(false);
         cursor.up(true);
-        assert_eq!(cursor.current.column, 0);
-        assert_eq!(cursor.current.line, 1);
-        assert_eq!(cursor.extender.column, 1);
-        assert_eq!(cursor.extender.line, 2);
+        assert_eq!(cursor.current.column, 1);
+        assert_eq!(cursor.current.line, 2);
+        assert_eq!(cursor.extender.column, 0);
+        assert_eq!(cursor.extender.line, 1);
         cursor.up(true);
         assert_eq!(cursor.current.column, 1);
-        assert_eq!(cursor.current.line, 0);
+        assert_eq!(cursor.current.line, 2);
         assert_eq!(cursor.extender.column, 1);
-        assert_eq!(cursor.extender.line, 2);
+        assert_eq!(cursor.extender.line, 0);
     }
     #[test]
     fn up_from_selection_same_line() {
@@ -239,10 +239,10 @@ mod tests {
         cursor.right(true);
         cursor.down(true);
         cursor.up(false);
-        assert_eq!(cursor.current.column, 0);
-        assert_eq!(cursor.current.line, 0);
-        assert_eq!(cursor.extender.column, 0);
-        assert_eq!(cursor.extender.line, 0);
+        assert_eq!(cursor.current.column, 1);
+        assert_eq!(cursor.current.line, 1);
+        assert_eq!(cursor.extender.column, 1);
+        assert_eq!(cursor.extender.line, 1);
     }
     #[test]
     fn down_select_empty() {
@@ -552,8 +552,8 @@ mod tests {
         let mut cursor = Cursor::new(vec![10]);
         cursor.right(false);
         cursor.home(true);
-        assert_eq!(cursor.current.column, 0);
-        assert_eq!(cursor.extender.column, 1);
+        assert_eq!(cursor.current.column, 1);
+        assert_eq!(cursor.extender.column, 0);
         cursor.home(true);
         assert_eq!(cursor.current.column, 1);
         assert_eq!(cursor.extender.column, 1);
@@ -566,10 +566,10 @@ mod tests {
         cursor.down(false);
         cursor.up(true);
         cursor.home(true);
-        assert_eq!(cursor.current.column, 0);
-        assert_eq!(cursor.current.line, 0);
-        assert_eq!(cursor.extender.column, 2);
-        assert_eq!(cursor.extender.line, 1);
+        assert_eq!(cursor.current.column, 2);
+        assert_eq!(cursor.current.line, 1);
+        assert_eq!(cursor.extender.column, 0);
+        assert_eq!(cursor.extender.line, 0);
     }
     #[test]
     fn end_empty() {
