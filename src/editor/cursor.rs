@@ -163,7 +163,7 @@ pub mod cursor {
             let move_start = !select || direction < 0;
             let move_end = !select || direction > 0;
             self.vertical_movement_line(direction, select, move_start, move_end);
-            self.vertical_movement_column(direction, move_start, move_end);
+            self.vertical_movement_column(direction, select, move_start, move_end);
         }
         fn vertical_movement_line(
             &mut self,
@@ -182,15 +182,13 @@ pub mod cursor {
                     (self.line_lengths.len() - 1, self.line_lengths.len() - 1)
                 } else if next_move_to_line <= 0 {
                     (0, 0)
+                } else if !select && self.start.line != self.end.line {
+                    (next_move_to_line as usize, next_move_to_line as usize)
                 } else {
-                    if !select && self.start.line != self.end.line {
-                        (next_move_to_line as usize, next_move_to_line as usize)
-                    } else {
-                        (
-                            ((self.start.line as isize) + direction) as usize,
-                            ((self.end.line as isize) + direction) as usize,
-                        )
-                    }
+                    (
+                        ((self.start.line as isize) + direction) as usize,
+                        ((self.end.line as isize) + direction) as usize,
+                    )
                 };
             if move_start {
                 self.start.line = new_start_line;
@@ -200,26 +198,40 @@ pub mod cursor {
             }
         }
 
-        fn vertical_movement_column(&mut self, direction: isize, move_start: bool, move_end: bool) {
-            let next_line_index = if direction < 0 {
-                self.start.line
+        fn vertical_movement_column(
+            &mut self,
+            direction: isize,
+            select: bool,
+            move_start: bool,
+            move_end: bool,
+        ) {
+            let moving_cursor_part = if direction < 0 {
+                &self.start
             } else {
-                self.end.line
+                &self.end
             };
-            let next_line_max_column = self.line_lengths.get(next_line_index).unwrap();
-            let (new_start_column, new_end_column) = if &self.start.column > next_line_max_column
-                || &self.start.column < &self.start.column_offset
+            let next_line_max_column = self.line_lengths.get(moving_cursor_part.line).unwrap();
+            let (new_start_column, new_end_column) =
+                if !select && self.start.column != self.end.column {
+                    let actual_new_column = if &moving_cursor_part.column > next_line_max_column {
+                        next_line_max_column
+                    } else {
+                        &moving_cursor_part.column
+                    };
+                    (*actual_new_column, *actual_new_column)
+                } else if &self.start.column > next_line_max_column
+                    || &self.start.column < &self.start.column_offset
+                        && &self.start.column < next_line_max_column
+                        && &self.start.column_offset > next_line_max_column
+                {
+                    (*next_line_max_column, *next_line_max_column)
+                } else if &self.start.column < &self.start.column_offset
                     && &self.start.column < next_line_max_column
-                    && &self.start.column_offset > next_line_max_column
-            {
-                (*next_line_max_column, *next_line_max_column)
-            } else if &self.start.column < &self.start.column_offset
-                && &self.start.column < next_line_max_column
-            {
-                (self.start.column_offset, self.end.column_offset)
-            } else {
-                (self.start.column, self.end.column)
-            };
+                {
+                    (self.start.column_offset, self.end.column_offset)
+                } else {
+                    ((self.start.column, self.end.column))
+                };
             if move_start {
                 self.start.column = new_start_column;
             }

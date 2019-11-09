@@ -37,9 +37,7 @@ pub mod sdl2 {
 
         let mut event_pump = sdl_context.event_pump().unwrap();
 
-        let mut cursor = Cursor::new(vec![
-            1, 4, 27, 1, 35, 90, 70, 10, 43, 1, 1, 1, 10, 10, 10, 1,
-        ]);
+        let mut cursor = Cursor::new(vec![5, 20, 5, 20, 5, 20, 0, 10, 0, 10, 0, 10]);
 
         'running: loop {
             canvas.set_draw_color(Color::RGB(40, 40, 40));
