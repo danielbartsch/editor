@@ -62,17 +62,17 @@ pub mod sdl2 {
                 .filter_map(Keycode::from_scancode)
                 .collect();
 
-            let do_select_text =
+            let is_selecting_text =
                 pressed_keys.contains(&Keycode::LShift) || pressed_keys.contains(&Keycode::RShift);
 
             if pressed_keys.contains(&Keycode::Right) {
-                cursor.right(do_select_text);
+                cursor.right(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::Left) {
-                cursor.left(do_select_text);
+                cursor.left(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::Down) {
-                cursor.down(do_select_text);
+                cursor.down(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::Up) {
-                cursor.up(do_select_text);
+                cursor.up(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::Delete) {
                 cursor.delete();
             } else if pressed_keys.contains(&Keycode::Backspace) {
@@ -80,9 +80,9 @@ pub mod sdl2 {
             } else if pressed_keys.contains(&Keycode::Return) {
                 cursor.new_line();
             } else if pressed_keys.contains(&Keycode::Home) {
-                cursor.home(do_select_text);
+                cursor.home(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::End) {
-                cursor.end(do_select_text);
+                cursor.end(is_selecting_text);
             } else if pressed_keys.len() > 0 {
                 cursor.add();
             }
