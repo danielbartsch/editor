@@ -3,6 +3,7 @@ bootstrap:
 
 testCov:
 	cargo tarpaulin \
+	--verbose \
 	--out Xml \
 	--exclude-files \
 		src/editor/sdl_experiment.rs \
