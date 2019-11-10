@@ -144,7 +144,7 @@ pub mod sdl2 {
             }
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
-                let coords = get_line_coords_line_draw(&line.len());
+                let coords = get_line_coords_line_draw(line.len());
 
                 for (index, (x1, y1)) in coords.iter().enumerate() {
                     if index < (coords.len() - 1) {
@@ -226,8 +226,8 @@ pub mod sdl2 {
         }
     }
 
-    fn get_line_coords(length: &usize) -> Vec<(i32, i32)> {
-        let line_length = *length as i32 * CHARACTER_WIDTH;
+    fn get_line_coords(length: usize) -> Vec<(i32, i32)> {
+        let line_length = length as i32 * CHARACTER_WIDTH;
         vec![
             (0, 0),
             (line_length as i32, 0),
@@ -236,7 +236,7 @@ pub mod sdl2 {
         ]
     }
 
-    fn get_line_coords_line_draw(length: &usize) -> Vec<(i32, i32)> {
+    fn get_line_coords_line_draw(length: usize) -> Vec<(i32, i32)> {
         let mut coords = get_line_coords(length);
         if coords.len() > 0 {
             coords.push(coords[0]);
