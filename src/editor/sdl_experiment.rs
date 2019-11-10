@@ -37,7 +37,30 @@ pub mod sdl2 {
 
         let mut event_pump = sdl_context.event_pump().unwrap();
 
-        let mut cursor = Cursor::new(vec![5, 20, 5, 20, 5, 20, 0, 10, 0, 10, 0, 10]);
+        let mut cursor = Cursor::new(vec![
+            vec!['H', 'i', ','],
+            vec![],
+            vec![
+                'T', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', 'n', ' ', 'E', 'd', 'i', 't', 'o', 'r',
+            ],
+            vec![],
+            vec![
+                'I', 't', ' ', 'w', 'a', 's', ' ', 'm', 'a', 'd', 'e', 'b', 'y', ' ', 'D', 'a',
+                'n', 'i', 'e', 'l', ' ', 'B', 'a', 'r', 't', 's', 'c', 'h', ' ', 'i', 'n', ' ',
+                '2', '0', '1', '9',
+            ],
+            vec![],
+            vec![
+                'I', 't', ' ', 'i', 's', ' ', 'w', 'r', 'i', 't', 't', 'e', 'n', ' ', 'i', 'n',
+                ' ', 'R', 'u', 's', 't', ',',
+            ],
+            vec![
+                'A', ' ', 'n', 'e', 'w', ',', ' ', 'p', 'r', 'e', 't', 't', 'y', ' ', 'p', 'o',
+                'p', 'u', 'l', 'a', 'r', ' ', 'p', 'r', 'o', 'g', 'r', 'a', 'm', 'm', 'i', 'n',
+                'g', ' ', 'l', 'a', 'n', 'g', 'u', 'a', 'g', 'e',
+            ],
+            vec![],
+        ]);
 
         'running: loop {
             canvas.set_draw_color(Color::RGB(40, 40, 40));
@@ -120,8 +143,8 @@ pub mod sdl2 {
                 }
             }
 
-            for (line_index, length) in cursor.line_lengths.iter().enumerate() {
-                let coords = get_line_coords_line_draw(length);
+            for (line_index, line) in cursor.lines.iter().enumerate() {
+                let coords = get_line_coords_line_draw(&line.len());
 
                 for (index, (x1, y1)) in coords.iter().enumerate() {
                     if index < (coords.len() - 1) {
@@ -174,7 +197,7 @@ pub mod sdl2 {
                                 if cursor.extender.line == current_line {
                                     cursor.extender.column as i32 * CHARACTER_WIDTH
                                 } else {
-                                    cursor.line_lengths[current_line] as i32 * CHARACTER_WIDTH
+                                    cursor.lines[current_line].len() as i32 * CHARACTER_WIDTH
                                 },
                                 current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
                                     + CHARACTER_HEIGHT / 2,

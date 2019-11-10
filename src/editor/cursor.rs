@@ -18,11 +18,11 @@ pub mod cursor {
     pub struct Cursor {
         pub current: CursorPosition,
         pub extender: CursorPosition,
-        pub line_lengths: Vec<usize>,
+        pub lines: Vec<Vec<char>>,
     }
 
     impl Cursor {
-        pub fn new(line_lengths: Vec<usize>) -> Cursor {
+        pub fn new(lines: Vec<Vec<char>>) -> Cursor {
             Cursor {
                 current: CursorPosition {
                     line: 0,
@@ -34,25 +34,26 @@ pub mod cursor {
                     column: 0,
                     column_offset: 0,
                 },
-                line_lengths: line_lengths,
+                lines: lines,
             }
         }
         pub fn add(&mut self, character: char) {
             if &self.current == &self.extender {
-                self.line_lengths[self.current.line] += 1;
+                self.lines[self.current.line].insert(self.current.column, character);
                 self.right(false);
             }
         }
         pub fn delete(&mut self) {
             if &self.current == &self.extender {
-                if &self.current.column == &self.line_lengths[self.current.line] {
-                    if self.current.line + 1 < self.line_lengths.len() {
-                        self.line_lengths[self.current.line] +=
-                            self.line_lengths[self.current.line + 1];
-                        self.line_lengths.remove(self.current.line + 1);
+                if &self.current.column == &self.lines[self.current.line].len() {
+                    if self.current.line + 1 < self.lines.len() {
+                        for character in self.lines[self.current.line + 1].clone().iter() {
+                            self.lines[self.current.line].push(*character);
+                        }
+                        self.lines.remove(self.current.line + 1);
                     }
                 } else {
-                    self.line_lengths[self.current.line] -= 1;
+                    self.lines[self.current.line].remove(self.current.column);
                 }
             }
         }
@@ -66,10 +67,16 @@ pub mod cursor {
         }
         pub fn new_line(&mut self) {
             if &self.current == &self.extender {
-                let remaining_length = self.line_lengths[self.current.line] - self.current.column;
-                self.line_lengths[self.current.line] -= remaining_length;
-                self.line_lengths
-                    .insert(self.current.line + 1, remaining_length);
+                let (remaining_current_line, new_next_line) =
+                    self.lines[self.current.line].split_at_mut(self.current.column);
+                let (remaining_current_line_vec, new_next_line_vec) =
+                    (remaining_current_line.to_vec(), new_next_line.to_vec());
+
+                self.lines
+                    .insert(self.current.line, remaining_current_line_vec);
+                self.lines.insert(self.current.line + 2, new_next_line_vec);
+                self.lines.remove(self.current.line + 1);
+
                 self.current.line += 1;
                 self.extender.line += 1;
                 self.current.column = 0;
@@ -79,7 +86,7 @@ pub mod cursor {
         pub fn home(&mut self, select: bool) {
             let moving_cursor = self.get_moving_cursor(select);
             let move_to = if moving_cursor.column == 0
-                && self.line_lengths[moving_cursor.line] >= moving_cursor.column_offset
+                && self.lines[moving_cursor.line].len() >= moving_cursor.column_offset
             {
                 moving_cursor.column_offset
             } else {
@@ -92,7 +99,7 @@ pub mod cursor {
         }
         pub fn end(&mut self, select: bool) {
             let moving_cursor = self.get_moving_cursor(select);
-            let current_line_max_column = self.line_lengths[moving_cursor.line];
+            let current_line_max_column = self.lines[moving_cursor.line].len();
             let move_to = if moving_cursor.column == current_line_max_column
                 && current_line_max_column >= moving_cursor.column_offset
             {
@@ -111,10 +118,7 @@ pub mod cursor {
             let (new_start_line, new_start_column) = if moving_cursor.column == 0 {
                 if moving_cursor.line != 0 {
                     let previous_line = moving_cursor.line - 1;
-                    (
-                        previous_line,
-                        *self.line_lengths.get(previous_line).unwrap(),
-                    )
+                    (previous_line, self.lines[previous_line].len())
                 } else {
                     (moving_cursor.line, moving_cursor.column)
                 }
@@ -132,12 +136,12 @@ pub mod cursor {
         }
         pub fn right(&mut self, select: bool) {
             let moving_cursor = self.get_moving_cursor(select);
-            let current_line_max_column = self.line_lengths.get(moving_cursor.line).unwrap();
-            let has_next_line = moving_cursor.line < self.line_lengths.len() - 1;
+            let current_line_max_column = self.lines[moving_cursor.line].len();
+            let has_next_line = moving_cursor.line < self.lines.len() - 1;
             let (new_end_line, new_end_column) =
-                if &moving_cursor.column == current_line_max_column && has_next_line {
+                if moving_cursor.column == current_line_max_column && has_next_line {
                     (moving_cursor.line + 1, 0)
-                } else if &moving_cursor.column < current_line_max_column {
+                } else if moving_cursor.column < current_line_max_column {
                     (moving_cursor.line, moving_cursor.column + 1)
                 } else {
                     (moving_cursor.line, moving_cursor.column)
@@ -166,8 +170,8 @@ pub mod cursor {
             let moving_cursor = self.get_moving_cursor(select);
 
             let next_move_to_line = moving_cursor.line as isize + direction;
-            let new_line = if next_move_to_line > (self.line_lengths.len() - 1) as isize {
-                self.line_lengths.len() - 1
+            let new_line = if next_move_to_line > (self.lines.len() - 1) as isize {
+                self.lines.len() - 1
             } else if next_move_to_line <= 0 {
                 0
             } else {
@@ -182,15 +186,15 @@ pub mod cursor {
         fn vertical_movement_column(&mut self, select: bool) {
             let moving_cursor = self.get_moving_cursor(select);
 
-            let next_line_max_column = self.line_lengths.get(moving_cursor.line).unwrap();
-            let new_column = if &moving_cursor.column > next_line_max_column
+            let next_line_max_column = self.lines[moving_cursor.line].len();
+            let new_column = if moving_cursor.column > next_line_max_column
                 || &moving_cursor.column < &moving_cursor.column_offset
-                    && &moving_cursor.column < next_line_max_column
-                    && &moving_cursor.column_offset > next_line_max_column
+                    && moving_cursor.column < next_line_max_column
+                    && moving_cursor.column_offset > next_line_max_column
             {
-                *next_line_max_column
+                next_line_max_column
             } else if &moving_cursor.column < &moving_cursor.column_offset
-                && &moving_cursor.column < next_line_max_column
+                && moving_cursor.column < next_line_max_column
             {
                 moving_cursor.column_offset
             } else {
