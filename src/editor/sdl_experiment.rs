@@ -144,22 +144,25 @@ pub mod sdl2 {
             }
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
-                let coords = get_line_coords_line_draw(line.len());
+                let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
+                for (column_index, character) in line.iter().enumerate() {
+                    let character_x_offset =
+                        column_index as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
+                    let coords = get_character_coords(character);
 
                 for (index, (x1, y1)) in coords.iter().enumerate() {
                     if index < (coords.len() - 1) {
                         let (x2, y2) = coords[index + 1];
 
-                        let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
-
                         canvas
                             .draw_line(
-                                Point::new(*x1, *y1 + line_y_offset),
-                                Point::new(x2, y2 + line_y_offset),
+                                    Point::new(*x1 + character_x_offset, *y1 + line_y_offset),
+                                    Point::new(x2 + character_x_offset, y2 + line_y_offset),
                             )
                             .unwrap();
                     }
                 }
+            }
             }
 
             canvas.set_draw_color(Color::RGB(200, 200, 200));
@@ -243,6 +246,12 @@ pub mod sdl2 {
             coords
         } else {
             coords
+        }
+    }
+
+    fn get_character_coords(character: &char) -> Vec<(i32, i32)> {
+        match character {
+            _ => vec![],
         }
     }
 }
