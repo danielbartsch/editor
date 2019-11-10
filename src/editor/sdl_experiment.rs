@@ -18,6 +18,7 @@ pub mod sdl2 {
     static CHARACTER_WIDTH: i32 = 8;
     static CHARACTER_HEIGHT: i32 = 16;
     static LINE_GAP: i32 = 4;
+    static CHARACTER_GAP: i32 = 2;
 
     pub fn run() {
         let sdl_context = sdl2::init().unwrap();
@@ -150,30 +151,30 @@ pub mod sdl2 {
                         column_index as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
                     let coords = get_character_coords(character);
 
-                for (index, (x1, y1)) in coords.iter().enumerate() {
-                    if index < (coords.len() - 1) {
-                        let (x2, y2) = coords[index + 1];
+                    for (index, (x1, y1)) in coords.iter().enumerate() {
+                        if index < (coords.len() - 1) {
+                            let (x2, y2) = coords[index + 1];
 
-                        canvas
-                            .draw_line(
+                            canvas
+                                .draw_line(
                                     Point::new(*x1 + character_x_offset, *y1 + line_y_offset),
                                     Point::new(x2 + character_x_offset, y2 + line_y_offset),
-                            )
-                            .unwrap();
+                                )
+                                .unwrap();
+                        }
                     }
                 }
-            }
             }
 
             canvas.set_draw_color(Color::RGB(200, 200, 200));
             canvas
                 .draw_line(
                     (
-                        cursor.current.column as i32 * CHARACTER_WIDTH,
+                        cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
                         cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
                     ),
                     (
-                        cursor.current.column as i32 * CHARACTER_WIDTH,
+                        cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
                         cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
                             + CHARACTER_HEIGHT,
                     ),
@@ -189,7 +190,7 @@ pub mod sdl2 {
                         .draw_line(
                             (
                                 if cursor.current.line == current_line {
-                                    cursor.current.column as i32 * CHARACTER_WIDTH
+                                    cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH)
                                 } else {
                                     0
                                 },
@@ -198,9 +199,11 @@ pub mod sdl2 {
                             ),
                             (
                                 if cursor.extender.line == current_line {
-                                    cursor.extender.column as i32 * CHARACTER_WIDTH
+                                    cursor.extender.column as i32
+                                        * (CHARACTER_GAP + CHARACTER_WIDTH)
                                 } else {
-                                    cursor.lines[current_line].len() as i32 * CHARACTER_WIDTH
+                                    cursor.lines[current_line].len() as i32
+                                        * (CHARACTER_GAP + CHARACTER_WIDTH)
                                 },
                                 current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
                                     + CHARACTER_HEIGHT / 2,
@@ -212,11 +215,11 @@ pub mod sdl2 {
                 canvas
                     .draw_line(
                         (
-                            cursor.extender.column as i32 * CHARACTER_WIDTH,
+                            cursor.extender.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
                             cursor.extender.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
                         ),
                         (
-                            cursor.extender.column as i32 * CHARACTER_WIDTH,
+                            cursor.extender.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
                             cursor.extender.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
                                 + CHARACTER_HEIGHT,
                         ),
@@ -230,7 +233,7 @@ pub mod sdl2 {
     }
 
     fn get_line_coords(length: usize) -> Vec<(i32, i32)> {
-        let line_length = length as i32 * CHARACTER_WIDTH;
+        let line_length = length as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
         vec![
             (0, 0),
             (line_length as i32, 0),
