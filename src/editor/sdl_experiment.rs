@@ -89,6 +89,8 @@ pub mod sdl2 {
             ],
         ]);
 
+        video_subsystem.text_input().start();
+
         'running: loop {
             canvas.set_draw_color(Color::RGB(40, 40, 40));
             canvas.clear();
@@ -99,6 +101,12 @@ pub mod sdl2 {
                         keycode: Some(Keycode::Escape),
                         ..
                     } => break 'running,
+                    Event::TextInput { text, .. } => {
+                        let mut characters = text.chars();
+                        if let Some(character) = characters.next() {
+                            cursor.add(character);
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -133,54 +141,6 @@ pub mod sdl2 {
                 cursor.home(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::End) {
                 cursor.end(is_selecting_text);
-            } else if pressed_keys.len() > 0 {
-                for key_code in pressed_keys.drain() {
-                    let maybe_character = match key_code {
-                        Keycode::A => Some('a'),
-                        Keycode::B => Some('b'),
-                        Keycode::C => Some('c'),
-                        Keycode::D => Some('d'),
-                        Keycode::E => Some('e'),
-                        Keycode::F => Some('f'),
-                        Keycode::G => Some('g'),
-                        Keycode::H => Some('h'),
-                        Keycode::I => Some('i'),
-                        Keycode::J => Some('j'),
-                        Keycode::K => Some('k'),
-                        Keycode::L => Some('l'),
-                        Keycode::M => Some('m'),
-                        Keycode::N => Some('n'),
-                        Keycode::O => Some('o'),
-                        Keycode::P => Some('p'),
-                        Keycode::Q => Some('q'),
-                        Keycode::R => Some('r'),
-                        Keycode::S => Some('s'),
-                        Keycode::T => Some('t'),
-                        Keycode::U => Some('u'),
-                        Keycode::V => Some('v'),
-                        Keycode::W => Some('w'),
-                        Keycode::X => Some('x'),
-                        Keycode::Y => Some('y'),
-                        Keycode::Z => Some('z'),
-                        Keycode::Num0 => Some('0'),
-                        Keycode::Num1 => Some('1'),
-                        Keycode::Num2 => Some('2'),
-                        Keycode::Num3 => Some('3'),
-                        Keycode::Num4 => Some('4'),
-                        Keycode::Num5 => Some('5'),
-                        Keycode::Num6 => Some('6'),
-                        Keycode::Num7 => Some('7'),
-                        Keycode::Num8 => Some('8'),
-                        Keycode::Num9 => Some('9'),
-                        Keycode::Comma => Some(','),
-                        Keycode::Period => Some('.'),
-                        Keycode::Space => Some(' '),
-                        _ => None,
-                    };
-                    if let Some(character) = maybe_character {
-                        cursor.add(character);
-                    }
-                }
             }
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
