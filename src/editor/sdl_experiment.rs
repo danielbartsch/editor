@@ -39,54 +39,22 @@ pub mod sdl2 {
         let mut event_pump = sdl_context.event_pump().unwrap();
 
         let mut cursor = Cursor::new(vec![
-            vec![
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
-                'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
-                'w', 'x', 'y', 'z',
-            ],
-            vec![
-                '+', '-', '=', '*', '/', '\\', '\'', '"', '`', '#', 'A', 'B', 'C', 'D', 'E', 'F',
-                'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-                'W', 'X', 'Y', 'Z',
-            ],
-            vec![],
-            vec!['H', 'i', ','],
-            vec![],
-            vec![
-                'T', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', 'n', ' ', 'E', 'd', 'i', 't', 'o', 'r',
-            ],
-            vec![],
-            vec![
-                'I', 't', ' ', 'w', 'a', 's', ' ', 'm', 'a', 'd', 'e', ' ', 'b', 'y', ' ', '"',
-                'D', 'a', 'n', 'i', 'e', 'l', ' ', 'B', 'a', 'r', 't', 's', 'c', 'h', '"', ' ',
-                'i', 'n', ' ', '`', '2', '0', '1', '9', '`', '.',
-            ],
-            vec![],
-            vec![
-                'I', 't', ' ', 'i', 's', ' ', 'w', 'r', 'i', 't', 't', 'e', 'n', ' ', 'i', 'n',
-                ' ', '\'', 'R', 'u', 's', 't', '\'', ',',
-            ],
-            vec![
-                'A', ' ', 'n', 'e', 'w', ',', ' ', 'p', 'r', 'e', 't', 't', 'y', ' ', 'p', 'o',
-                'p', 'u', 'l', 'a', 'r', ' ', 'p', 'r', 'o', 'g', 'r', 'a', 'm', 'm', 'i', 'n',
-                'g', ' ', 'l', 'a', 'n', 'g', 'u', 'a', 'g', 'e', '.',
-            ],
-            vec![],
-            vec![
-                '#', ' ', 'T', 'h', 'i', 's', ' ', 'i', 's', ' ', 'a', ' ', 's', 'h', 'e', 'l',
-                'l', 's', 'c', 'r', 'i', 'p', 't', '-', 's', 't', 'y', 'l', 'e', ' ', 'c', 'o',
-                'm', 'm', 'e', 'n', 't', '!',
-            ],
-            vec![
-                '/', '/', ' ', '(', '=', 'C', '-', 'L', 'i', 'k', 'e', '-', 'c', 'o', 'm', 'm',
-                'e', 'n', 't', '.', ')', 'C', ' ', '+', ' ', 'J', 'a', 'v', 'a', ' ', '=', ' ',
-                'T', 'h', 'i', 's', ' ', 'S', 'y', 'n', 't', 'a', 'x',
-            ],
-            vec![],
-            vec![
-                'S', 'o', 'm', 'e', ' ', 'm', 'o', 'r', 'e', ' ', 'c', 'h', 'a', 'r', 'a', 'c',
-                't', 'e', 'r', 's', ':', ' ', '[', ']', '{', '}', '^', '°', '$', '%', '<', '>',
-            ],
+            String::from("0123456789abcdefghijklmnopqrstuvwxyz"),
+            String::from("+-=*/\\'\"`#ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+            String::from(""),
+            String::from("Hi,"),
+            String::from(""),
+            String::from("This is an Editor"),
+            String::from(""),
+            String::from("It was made by \"Daniel Bartsch\" in `2019`."),
+            String::from(""),
+            String::from("It is written in \'Rust\',"),
+            String::from("A new, pretty popular programming language."),
+            String::from(""),
+            String::from("# This is a shellscript-style comment!"),
+            String::from("// (=C-Like-comment.)C + Java = This Syntax"),
+            String::from(""),
+            String::from("Some more characters: []{}^°$%<>"),
         ]);
 
         video_subsystem.text_input().start();
@@ -145,21 +113,26 @@ pub mod sdl2 {
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
                 let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
-                for (column_index, character) in line.iter().enumerate() {
-                    let character_x_offset =
-                        column_index as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
-                    let coords = get_character_coords(character);
+                for (column_index, one_character_string) in
+                    line.split("").filter(|string| string.len() > 0).enumerate()
+                {
+                    let mut characters = one_character_string.chars();
+                    if let Some(character) = characters.next() {
+                        let character_x_offset =
+                            column_index as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
+                        let coords = get_character_coords(&character);
 
-                    for (index, (x1, y1)) in coords.iter().enumerate() {
-                        if index < (coords.len() - 1) {
-                            let (x2, y2) = coords[index + 1];
+                        for (index, (x1, y1)) in coords.iter().enumerate() {
+                            if index < (coords.len() - 1) {
+                                let (x2, y2) = coords[index + 1];
 
-                            canvas
-                                .draw_line(
-                                    Point::new(*x1 + character_x_offset, *y1 + line_y_offset),
-                                    Point::new(x2 + character_x_offset, y2 + line_y_offset),
-                                )
-                                .unwrap();
+                                canvas
+                                    .draw_line(
+                                        Point::new(*x1 + character_x_offset, *y1 + line_y_offset),
+                                        Point::new(x2 + character_x_offset, y2 + line_y_offset),
+                                    )
+                                    .unwrap();
+                            }
                         }
                     }
                 }

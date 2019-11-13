@@ -18,11 +18,11 @@ pub mod cursor {
     pub struct Cursor {
         pub current: CursorPosition,
         pub extender: CursorPosition,
-        pub lines: Vec<Vec<char>>,
+        pub lines: Vec<String>,
     }
 
     impl Cursor {
-        pub fn new(lines: Vec<Vec<char>>) -> Cursor {
+        pub fn new(lines: Vec<String>) -> Cursor {
             Cursor {
                 current: CursorPosition {
                     line: 0,
@@ -47,9 +47,8 @@ pub mod cursor {
             if &self.current == &self.extender {
                 if &self.current.column == &self.lines[self.current.line].len() {
                     if self.current.line + 1 < self.lines.len() {
-                        for character in self.lines[self.current.line + 1].clone().iter() {
-                            self.lines[self.current.line].push(*character);
-                        }
+                        let next_line = self.lines[self.current.line + 1].to_string();
+                        self.lines[self.current.line].push_str(&next_line);
                         self.lines.remove(self.current.line + 1);
                     }
                 } else {
@@ -69,12 +68,15 @@ pub mod cursor {
             if &self.current == &self.extender {
                 let (remaining_current_line, new_next_line) =
                     self.lines[self.current.line].split_at_mut(self.current.column);
-                let (remaining_current_line_vec, new_next_line_vec) =
-                    (remaining_current_line.to_vec(), new_next_line.to_vec());
+                let (remaining_current_line_string, new_next_line_string) = (
+                    remaining_current_line.to_string(),
+                    new_next_line.to_string(),
+                );
 
                 self.lines
-                    .insert(self.current.line, remaining_current_line_vec);
-                self.lines.insert(self.current.line + 2, new_next_line_vec);
+                    .insert(self.current.line, remaining_current_line_string);
+                self.lines
+                    .insert(self.current.line + 2, new_next_line_string);
                 self.lines.remove(self.current.line + 1);
 
                 self.current.line += 1;
