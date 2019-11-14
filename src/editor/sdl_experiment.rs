@@ -54,7 +54,7 @@ pub mod sdl2 {
             String::from("# This is a shellscript-style comment!"),
             String::from("// (=C-Like-comment.)C + Java = This Syntax"),
             String::from(""),
-            String::from("Some more characters: []{}^°$%<>"),
+            String::from("Some more characters: []{}^°$%<>?!&|_~€;:"),
         ]);
 
         video_subsystem.text_input().start();
