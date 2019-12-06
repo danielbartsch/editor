@@ -117,8 +117,10 @@ pub mod sdl2 {
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
                 let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
-                for (column_index, one_character_string) in
-                    line.split("").filter(|string| string.len() > 0).enumerate()
+                for (column_index, one_character_string) in line
+                    .split("")
+                    .filter(|string| string.chars().count() > 0)
+                    .enumerate()
                 {
                     let mut characters = one_character_string.chars();
                     if let Some(character) = characters.next() {
@@ -179,7 +181,7 @@ pub mod sdl2 {
                                     cursor.extender.column as i32
                                         * (CHARACTER_GAP + CHARACTER_WIDTH)
                                 } else {
-                                    cursor.lines[current_line].len() as i32
+                                    cursor.lines[current_line].chars().count() as i32
                                         * (CHARACTER_GAP + CHARACTER_WIDTH)
                                 },
                                 current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
