@@ -39,7 +39,20 @@ pub mod cursor {
         }
         pub fn add(&mut self, character: char) {
             if &self.current == &self.extender {
-                self.lines[self.current.line].insert(self.current.column, character);
+                if self.current.column == self.lines[self.current.line].chars().count() {
+                    self.lines[self.current.line].push(character);
+                } else {
+                    self.lines[self.current.line] = self.lines[self.current.line]
+                        .chars()
+                        .enumerate()
+                        .fold("".to_string(), |acc, (index, current_character)| {
+                            if self.current.column == index {
+                                format!("{}{}{}", acc, character, current_character)
+                            } else {
+                                format!("{}{}", acc, current_character)
+                            }
+                        });
+                }
                 self.right(false);
             }
         }
@@ -52,7 +65,16 @@ pub mod cursor {
                         self.lines.remove(self.current.line + 1);
                     }
                 } else {
-                    self.lines[self.current.line].remove(self.current.column);
+                    self.lines[self.current.line] = self.lines[self.current.line]
+                        .chars()
+                        .enumerate()
+                        .fold("".to_string(), |acc, (index, current_character)| {
+                            if self.current.column == index {
+                                format!("{}", acc)
+                            } else {
+                                format!("{}{}", acc, current_character)
+                            }
+                        });
                 }
             }
         }

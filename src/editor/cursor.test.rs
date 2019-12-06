@@ -463,6 +463,13 @@ mod tests {
         assert_eq!(cursor.lines, vec![String::from("ab")]);
     }
     #[test]
+    fn delete_multi_byte() {
+        let mut cursor = Cursor::new(vec![String::from("°")]);
+        cursor.delete();
+        assert_eq!(cursor.current.column, 0);
+        assert_eq!(cursor.lines, vec![String::from("")]);
+    }
+    #[test]
     fn backspace_empty() {
         let mut cursor = Cursor::new(vec![String::from("")]);
         cursor.backspace();
@@ -490,6 +497,16 @@ mod tests {
         assert_eq!(cursor.lines, vec![String::from("ab"), String::from("cd")]);
     }
     #[test]
+    fn backspace_multi_byte() {
+        let mut cursor = Cursor::new(vec![String::from("🌈°b")]);
+        cursor.right(false);
+        cursor.right(false);
+        cursor.right(false);
+        cursor.backspace();
+        assert_eq!(cursor.current.column, 2);
+        assert_eq!(cursor.lines, vec![String::from("🌈°")]);
+    }
+    #[test]
     fn add_empty() {
         let mut cursor = Cursor::new(vec![String::from("")]);
         cursor.add('a');
@@ -501,6 +518,14 @@ mod tests {
         cursor.add('b');
         assert_eq!(cursor.current.column, 1);
         assert_eq!(cursor.lines, vec![String::from("bcde")]);
+    }
+    #[test]
+    fn add_after_multi_byte() {
+        let mut cursor = Cursor::new(vec![String::from("🌈°")]);
+        cursor.right(false);
+        cursor.add('b');
+        assert_eq!(cursor.current.column, 2);
+        assert_eq!(cursor.lines, vec![String::from("🌈b°")]);
     }
     #[test]
     fn new_line_empty() {
