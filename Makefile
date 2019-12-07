@@ -6,7 +6,7 @@ testCov:
 	--verbose \
 	--out Xml \
 	--exclude-files \
-		src/editor/sdl_experiment.rs \
+		src/editor/ui.rs \
 		src/editor/text_rendering.rs \
 		src/main.rs \
 		*.test.rs

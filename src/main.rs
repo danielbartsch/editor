@@ -1,6 +1,6 @@
-#[path = "editor/sdl_experiment.rs"]
-mod sdl_experiment;
-use crate::sdl_experiment::sdl2::*;
+#[path = "editor/ui.rs"]
+mod ui;
+use crate::ui::sdl2::*;
 
 fn main() {
     run();
