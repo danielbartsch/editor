@@ -7,5 +7,5 @@ mod ui;
 use crate::ui::editor;
 
 fn main() {
-    editor::run();
+    editor::run("./editorTestFile");
 }

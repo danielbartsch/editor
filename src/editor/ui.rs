@@ -36,7 +36,7 @@ pub mod editor {
         line_index * (LINE_GAP + CHARACTER_HEIGHT) + CHARACTER_Y_OFFSET
     }
 
-    pub fn run() {
+    pub fn run(file_path: &str) {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
         let window_width = ((CHARACTER_WIDTH + CHARACTER_GAP) * 45) as u32;
@@ -52,8 +52,6 @@ pub mod editor {
         canvas.present();
 
         let mut event_pump = sdl_context.event_pump().unwrap();
-
-        let file_path = "./editorTestFile";
 
         let string_file = fs::read_to_string(file_path).expect("Unable to read file");
         let mut cursor = Cursor::new(
