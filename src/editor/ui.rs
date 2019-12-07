@@ -184,11 +184,11 @@ pub mod sdl2 {
                 .draw_line(
                     (
                         get_character_x(cursor.current.column as i32),
-                        get_character_y(cursor.current.line as i32),
+                        get_character_y(cursor.current.line as i32) - CHARACTER_HEIGHT * 1 / 5,
                     ),
                     (
                         get_character_x(cursor.current.column as i32),
-                        get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT,
+                        get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT * 6 / 5,
                     ),
                 )
                 .unwrap();
@@ -272,11 +272,11 @@ pub mod sdl2 {
                     .draw_line(
                         (
                             get_character_x(cursor.extender.column as i32),
-                            get_character_y(cursor.extender.line as i32),
+                            get_character_y(cursor.extender.line as i32) - CHARACTER_HEIGHT * 1 / 5,
                         ),
                         (
                             get_character_x(cursor.extender.column as i32),
-                            get_character_y(cursor.extender.line as i32) + CHARACTER_HEIGHT,
+                            get_character_y(cursor.extender.line as i32) + CHARACTER_HEIGHT * 6 / 5,
                         ),
                     )
                     .unwrap();
