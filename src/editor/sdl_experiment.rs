@@ -13,6 +13,7 @@ pub mod sdl2 {
     use sdl2::keyboard::Keycode;
     use sdl2::pixels::Color;
     use sdl2::rect::Point;
+    use sdl2::render::WindowCanvas;
     use std::collections::HashSet;
     use std::error::Error;
     use std::fs;
@@ -50,8 +51,7 @@ pub mod sdl2 {
             .position_centered()
             .build()
             .unwrap();
-        let mut canvas = window.into_canvas().build().unwrap();
-        canvas.set_draw_color(Color::RGB(0, 255, 255));
+        let mut canvas: WindowCanvas = window.into_canvas().build().unwrap();
         canvas.clear();
         canvas.present();
 
