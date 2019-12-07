@@ -7,6 +7,6 @@ testCov:
 	--out Xml \
 	--exclude-files \
 		src/editor/sdl_experiment.rs \
+		src/editor/text_rendering.rs \
 		src/main.rs \
-		src/raytrace.rs \
 		*.test.rs
