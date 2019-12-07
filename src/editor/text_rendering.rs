@@ -500,6 +500,17 @@ pub mod text_rendering {
                 (0, character_height),
                 (character_width, character_height),
             ],
+            '@' => vec![
+                (character_width, character_height / 6),
+                (character_width, character_height * 5 / 6),
+                (0, character_height * 5 / 6),
+                (0, character_height / 6),
+                (character_width * 5 / 7, character_height / 6),
+                (character_width * 5 / 7, character_height * 2 / 3),
+                (character_width * 3 / 8, character_height * 2 / 3),
+                (character_width * 3 / 8, character_height * 1 / 3),
+                (character_width * 5 / 7, character_height * 1 / 3),
+            ],
             'A' => vec![
                 (0, character_height),
                 (0, 0),
