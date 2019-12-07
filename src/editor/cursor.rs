@@ -14,6 +14,24 @@ pub mod cursor {
 
     impl Eq for CursorPosition {}
 
+    use std::cmp::Ordering;
+
+    impl PartialOrd for CursorPosition {
+        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+            if self.line > other.line {
+                Some(Ordering::Greater)
+            } else if self.line < other.line {
+                Some(Ordering::Less)
+            } else if self.column > other.column {
+                Some(Ordering::Greater)
+            } else if self.column < other.column {
+                Some(Ordering::Less)
+            } else {
+                Some(Ordering::Equal)
+            }
+        }
+    }
+
     #[derive(Debug)]
     pub struct Cursor {
         pub current: CursorPosition,
@@ -75,6 +93,70 @@ pub mod cursor {
                                 format!("{}{}", acc, current_character)
                             }
                         });
+                }
+            } else {
+                if self.current.line == self.extender.line {
+                    let (lesser_column, greater_column) =
+                        if self.current.column > self.extender.column {
+                            (self.extender.column, self.current.column)
+                        } else {
+                            (self.current.column, self.extender.column)
+                        };
+                    self.lines[self.current.line] = self.lines[self.current.line]
+                        .chars()
+                        .enumerate()
+                        .fold("".to_string(), |acc, (index, current_character)| {
+                            if index >= lesser_column && index < greater_column {
+                                format!("{}", acc)
+                            } else {
+                                format!("{}{}", acc, current_character)
+                            }
+                        });
+                } else {
+                    let (end_of_line_delete, beginning_of_line_delete) =
+                        if self.current < self.extender {
+                            (&self.current, &self.extender)
+                        } else {
+                            (&self.extender, &self.current)
+                        };
+                    self.lines[end_of_line_delete.line] = self.lines[end_of_line_delete.line]
+                        .chars()
+                        .enumerate()
+                        .fold("".to_string(), |acc, (index, current_character)| {
+                            if index >= end_of_line_delete.column {
+                                format!("{}", acc)
+                            } else {
+                                format!("{}{}", acc, current_character)
+                            }
+                        });
+
+                    self.lines[beginning_of_line_delete.line] = self.lines
+                        [beginning_of_line_delete.line]
+                        .chars()
+                        .enumerate()
+                        .fold("".to_string(), |acc, (index, current_character)| {
+                            if beginning_of_line_delete.column > index {
+                                format!("{}", acc)
+                            } else {
+                                format!("{}{}", acc, current_character)
+                            }
+                        });
+
+                    let next_line = self.lines[beginning_of_line_delete.line].to_string();
+
+                    self.lines[end_of_line_delete.line].push_str(&next_line);
+
+                    for line_index in (end_of_line_delete.line + 1)..=beginning_of_line_delete.line
+                    {
+                        self.lines.remove(end_of_line_delete.line + 1);
+                    }
+                }
+                if self.current < self.extender {
+                    self.extender.column = self.current.column;
+                    self.extender.line = self.current.line;
+                } else {
+                    self.current.column = self.extender.column;
+                    self.current.line = self.extender.line;
                 }
             }
         }

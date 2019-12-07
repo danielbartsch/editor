@@ -470,6 +470,30 @@ mod tests {
         assert_eq!(cursor.lines, vec![String::from("")]);
     }
     #[test]
+    fn delete_with_selection() {
+        let mut cursor = Cursor::new(vec![String::from("abcd")]);
+        cursor.right(true);
+        cursor.right(true);
+        cursor.delete();
+        assert_eq!(cursor.current.column, 0);
+        assert_eq!(cursor.lines, vec![String::from("cd")]);
+    }
+    #[test]
+    fn delete_with_multi_line_selection() {
+        let mut cursor = Cursor::new(vec![
+            String::from("abcd"),
+            String::from("efgh"),
+            String::from("ijkl"),
+        ]);
+        cursor.right(false);
+        cursor.right(false);
+        cursor.down(true);
+        cursor.down(true);
+        cursor.delete();
+        assert_eq!(cursor.current.column, 2);
+        assert_eq!(cursor.lines, vec![String::from("abkl")]);
+    }
+    #[test]
     fn backspace_empty() {
         let mut cursor = Cursor::new(vec![String::from("")]);
         cursor.backspace();
