@@ -24,16 +24,16 @@ pub mod sdl2 {
     use super::cursor::cursor::Cursor;
     use super::text_rendering::text_rendering::get_character_coords;
 
-    static CHARACTER_WIDTH: i32 = 8;
+    static CHARACTER_WIDTH: i32 = 10;
     static CHARACTER_HEIGHT: i32 = 16;
-    static LINE_GAP: i32 = 4;
-    static CHARACTER_GAP: i32 = 2;
+    static LINE_GAP: i32 = CHARACTER_HEIGHT / 3;
+    static CHARACTER_GAP: i32 = CHARACTER_WIDTH / 3;
 
     pub fn run() {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
-        let window_width = 700;
-        let window_height = 350;
+        let window_width = ((CHARACTER_WIDTH + CHARACTER_GAP) * 45) as u32;
+        let window_height = ((CHARACTER_HEIGHT + LINE_GAP) * 20) as u32;
 
         let window = video_subsystem
             .window("Editor", window_width, window_height)
@@ -285,18 +285,19 @@ pub mod sdl2 {
         }
     }
 
-    fn get_line_coords(length: usize) -> Vec<(i32, i32)> {
-        let line_length = length as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
+    fn get_line_coords(column_from: usize, column_to: usize) -> Vec<(i32, i32)> {
+        let from = column_from as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
+        let to = column_to as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
         vec![
-            (0, 0),
-            (line_length as i32, 0),
-            (line_length as i32, CHARACTER_HEIGHT),
-            (0, CHARACTER_HEIGHT),
+            (from, 0),
+            (to, 0),
+            (to, CHARACTER_HEIGHT),
+            (from, CHARACTER_HEIGHT),
         ]
     }
 
-    fn get_line_coords_line_draw(length: usize) -> Vec<(i32, i32)> {
-        let mut coords = get_line_coords(length);
+    fn get_line_coords_line_draw(column_from: usize, column_to: usize) -> Vec<(i32, i32)> {
+        let mut coords = get_line_coords(column_from, column_to);
         if coords.len() > 0 {
             coords.push(coords[0]);
             coords
