@@ -56,23 +56,24 @@ pub mod cursor {
             }
         }
         pub fn add(&mut self, character: char) {
-            if &self.current == &self.extender {
-                if self.current.column == self.lines[self.current.line].chars().count() {
-                    self.lines[self.current.line].push(character);
-                } else {
-                    self.lines[self.current.line] = self.lines[self.current.line]
-                        .chars()
-                        .enumerate()
-                        .fold("".to_string(), |acc, (index, current_character)| {
-                            if self.current.column == index {
-                                format!("{}{}{}", acc, character, current_character)
-                            } else {
-                                format!("{}{}", acc, current_character)
-                            }
-                        });
-                }
-                self.right(false);
+            if self.current != self.extender {
+                self.delete();
             }
+            if self.current.column == self.lines[self.current.line].chars().count() {
+                self.lines[self.current.line].push(character);
+            } else {
+                self.lines[self.current.line] = self.lines[self.current.line]
+                    .chars()
+                    .enumerate()
+                    .fold("".to_string(), |acc, (index, current_character)| {
+                        if self.current.column == index {
+                            format!("{}{}{}", acc, character, current_character)
+                        } else {
+                            format!("{}{}", acc, current_character)
+                        }
+                    });
+            }
+            self.right(false);
         }
         pub fn delete(&mut self) {
             if &self.current == &self.extender {
@@ -166,28 +167,31 @@ pub mod cursor {
                     self.left(false);
                     self.delete();
                 }
+            } else {
+                self.delete();
             }
         }
         pub fn new_line(&mut self) {
-            if &self.current == &self.extender {
-                let (remaining_current_line, new_next_line) =
-                    self.lines[self.current.line].split_at_mut(self.current.column);
-                let (remaining_current_line_string, new_next_line_string) = (
-                    remaining_current_line.to_string(),
-                    new_next_line.to_string(),
-                );
-
-                self.lines
-                    .insert(self.current.line, remaining_current_line_string);
-                self.lines
-                    .insert(self.current.line + 2, new_next_line_string);
-                self.lines.remove(self.current.line + 1);
-
-                self.current.line += 1;
-                self.extender.line += 1;
-                self.current.column = 0;
-                self.extender.column = 0;
+            if self.current != self.extender {
+                self.delete();
             }
+            let (remaining_current_line, new_next_line) =
+                self.lines[self.current.line].split_at_mut(self.current.column);
+            let (remaining_current_line_string, new_next_line_string) = (
+                remaining_current_line.to_string(),
+                new_next_line.to_string(),
+            );
+
+            self.lines
+                .insert(self.current.line, remaining_current_line_string);
+            self.lines
+                .insert(self.current.line + 2, new_next_line_string);
+            self.lines.remove(self.current.line + 1);
+
+            self.current.line += 1;
+            self.extender.line += 1;
+            self.current.column = 0;
+            self.extender.column = 0;
         }
         pub fn home(&mut self, select: bool) {
             let moving_cursor = self.get_moving_cursor(select);

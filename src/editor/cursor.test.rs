@@ -531,6 +531,21 @@ mod tests {
         assert_eq!(cursor.lines, vec![String::from("🌈°")]);
     }
     #[test]
+    fn backspace_with_multi_line_selection() {
+        let mut cursor = Cursor::new(vec![
+            String::from("abcd"),
+            String::from("efgh"),
+            String::from("ijkl"),
+        ]);
+        cursor.right(false);
+        cursor.right(false);
+        cursor.down(true);
+        cursor.down(true);
+        cursor.backspace();
+        assert_eq!(cursor.current.column, 2);
+        assert_eq!(cursor.lines, vec![String::from("abkl")]);
+    }
+    #[test]
     fn add_empty() {
         let mut cursor = Cursor::new(vec![String::from("")]);
         cursor.add('a');
@@ -550,6 +565,15 @@ mod tests {
         cursor.add('b');
         assert_eq!(cursor.current.column, 2);
         assert_eq!(cursor.lines, vec![String::from("🌈b°")]);
+    }
+    #[test]
+    fn add_with_selection() {
+        let mut cursor = Cursor::new(vec![String::from("cde")]);
+        cursor.right(true);
+        cursor.right(true);
+        cursor.add('ß');
+        assert_eq!(cursor.current.column, 1);
+        assert_eq!(cursor.lines, vec![String::from("ße")]);
     }
     #[test]
     fn new_line_empty() {
@@ -600,6 +624,20 @@ mod tests {
         assert_eq!(cursor.current.column, 1);
     }
     #[test]
+    fn new_line_with_selection() {
+        let mut cursor = Cursor::new(vec![
+            String::from("abcd"),
+            String::from("efgh"),
+            String::from("ijkl"),
+        ]);
+        cursor.right(false);
+        cursor.right(false);
+        cursor.down(true);
+        cursor.down(true);
+        cursor.new_line();
+        assert_eq!(cursor.current.column, 0);
+        assert_eq!(cursor.lines, vec![String::from("ab"), String::from("kl")]);
+    }
     fn home_empty() {
         let mut cursor = Cursor::new(vec![String::from("")]);
         cursor.home(false);
