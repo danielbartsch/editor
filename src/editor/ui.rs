@@ -1,10 +1,6 @@
 #[path = "cursor.rs"]
 mod cursor;
 
-#[cfg(test)]
-#[path = "cursor.test.rs"]
-mod tests;
-
 #[path = "text_rendering.rs"]
 mod text_rendering;
 
