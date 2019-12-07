@@ -28,13 +28,15 @@ pub mod sdl2 {
     static CHARACTER_HEIGHT: i32 = 16;
     static LINE_GAP: i32 = CHARACTER_HEIGHT / 3;
     static CHARACTER_GAP: i32 = CHARACTER_WIDTH / 3;
+    static CHARACTER_X_OFFSET: i32 = 10;
+    static CHARACTER_Y_OFFSET: i32 = 5;
 
     fn get_character_x(column_index: i32) -> i32 {
-        column_index * (CHARACTER_GAP + CHARACTER_WIDTH)
+        column_index * (CHARACTER_GAP + CHARACTER_WIDTH) + CHARACTER_X_OFFSET
     }
 
     fn get_character_y(line_index: i32) -> i32 {
-        line_index * (LINE_GAP + CHARACTER_HEIGHT)
+        line_index * (LINE_GAP + CHARACTER_HEIGHT) + CHARACTER_Y_OFFSET
     }
 
     pub fn run() {
