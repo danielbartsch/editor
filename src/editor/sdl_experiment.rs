@@ -160,36 +160,87 @@ pub mod sdl2 {
                 )
                 .unwrap();
             if cursor.current != cursor.extender {
-                for current_line in if cursor.current.line > cursor.extender.line {
-                    cursor.extender.line..=cursor.current.line
-                } else {
-                    cursor.current.line..=cursor.extender.line
-                } {
+                if cursor.current.line != cursor.extender.line {
+                    for current_line in if cursor.current.line > cursor.extender.line {
+                        (cursor.extender.line + 1)..cursor.current.line
+                    } else {
+                        (cursor.current.line + 1)..cursor.extender.line
+                    } {
+                        canvas
+                            .draw_line(
+                                (
+                                    0,
+                                    current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                        + CHARACTER_HEIGHT / 2,
+                                ),
+                                (
+                                    cursor.lines[current_line].chars().count() as i32
+                                        * (CHARACTER_GAP + CHARACTER_WIDTH),
+                                    current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                        + CHARACTER_HEIGHT / 2,
+                                ),
+                            )
+                            .unwrap();
+                    }
+
+                    let (selection_to_end_of_line, selection_from_beginning_of_line) =
+                        if cursor.current > cursor.extender {
+                            (&cursor.extender, &cursor.current)
+                        } else {
+                            (&cursor.current, &cursor.extender)
+                        };
                     canvas
                         .draw_line(
                             (
-                                if cursor.current.line == current_line {
-                                    cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH)
-                                } else {
-                                    0
-                                },
-                                current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                selection_to_end_of_line.column as i32
+                                    * (CHARACTER_GAP + CHARACTER_WIDTH),
+                                selection_to_end_of_line.line as i32
+                                    * (LINE_GAP + CHARACTER_HEIGHT)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                             (
-                                if cursor.extender.line == current_line {
-                                    cursor.extender.column as i32
-                                        * (CHARACTER_GAP + CHARACTER_WIDTH)
-                                } else {
-                                    cursor.lines[current_line].chars().count() as i32
-                                        * (CHARACTER_GAP + CHARACTER_WIDTH)
-                                },
-                                current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                cursor.lines[selection_to_end_of_line.line].chars().count() as i32
+                                    * (CHARACTER_GAP + CHARACTER_WIDTH),
+                                selection_to_end_of_line.line as i32
+                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                        )
+                        .unwrap();
+                    canvas
+                        .draw_line(
+                            (
+                                0,
+                                selection_from_beginning_of_line.line as i32
+                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                            (
+                                selection_from_beginning_of_line.column as i32
+                                    * (CHARACTER_GAP + CHARACTER_WIDTH),
+                                selection_from_beginning_of_line.line as i32
+                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                        )
+                        .unwrap();
+                } else {
+                    canvas
+                        .draw_line(
+                            (
+                                cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
+                                cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
+                                    + CHARACTER_HEIGHT / 2,
+                            ),
+                            (
+                                cursor.extender.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
+                                cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                         )
                         .unwrap();
                 }
+
                 canvas.set_draw_color(Color::RGB(135, 200, 200));
                 canvas
                     .draw_line(
