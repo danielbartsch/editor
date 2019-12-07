@@ -4,8 +4,8 @@ mod tests;
 
 #[path = "editor/ui.rs"]
 mod ui;
-use crate::ui::sdl2::*;
+use crate::ui::editor;
 
 fn main() {
-    run();
+    editor::run();
 }

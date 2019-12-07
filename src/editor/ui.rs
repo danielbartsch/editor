@@ -4,7 +4,7 @@ mod cursor;
 #[path = "text_rendering.rs"]
 mod text_rendering;
 
-pub mod sdl2 {
+pub mod editor {
     use sdl2::event::Event;
     use sdl2::keyboard::Keycode;
     use sdl2::pixels::Color;
