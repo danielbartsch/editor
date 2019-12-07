@@ -42,24 +42,13 @@ pub mod sdl2 {
 
         let mut event_pump = sdl_context.event_pump().unwrap();
 
-        let mut cursor = Cursor::new(vec![
-            String::from("0123456789abcdefghijklmnopqrstuvwxyz"),
-            String::from("+-=*/\\'\"`#ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
-            String::from(""),
-            String::from("Hi,"),
-            String::from(""),
-            String::from("This is an Editor"),
-            String::from(""),
-            String::from("It was made by \"Daniel Bartsch\" in `2019`."),
-            String::from(""),
-            String::from("It is written in \'Rust\',"),
-            String::from("A new, pretty popular programming language."),
-            String::from(""),
-            String::from("# This is a shellscript-style comment!"),
-            String::from("// (=C-Like-comment.)C + Java = This Syntax"),
-            String::from(""),
-            String::from("Some more characters: []{}^°$%<>?!&|_~€;:"),
-        ]);
+        let string_file = fs::read_to_string("./editorTestFile").expect("Unable to read file");
+        let mut cursor = Cursor::new(
+            string_file
+                .split('\n')
+                .map(|string| String::from(string))
+                .collect::<Vec<String>>(),
+        );
 
         video_subsystem.text_input().start();
 

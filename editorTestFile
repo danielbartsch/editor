@@ -1,0 +1,16 @@
+0123456789abcdefghijklmnopqrstuvwxyz
++-=*/\'"`#ABCDEFGHIJKLMNOPQRSTUVWXYZ
+
+Hi,
+
+This is an Editor
+
+It was made by "Daniel Bartsch" in `2019`.
+
+It is written in 'Rust',
+A new, pretty popular programming language.
+
+# This is a shellscript-style comment!
+// (=C-Like-comment.)C + Java = This Syntax
+
+Some more characters: []{}^°$%<>?!&|_~€;:
