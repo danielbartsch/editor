@@ -14,6 +14,11 @@ pub mod sdl2 {
     use sdl2::pixels::Color;
     use sdl2::rect::Point;
     use std::collections::HashSet;
+    use std::error::Error;
+    use std::fs;
+    use std::fs::File;
+    use std::io::prelude::*;
+    use std::path::Path;
     use std::time::Duration;
 
     use super::cursor::cursor::Cursor;
@@ -42,7 +47,9 @@ pub mod sdl2 {
 
         let mut event_pump = sdl_context.event_pump().unwrap();
 
-        let string_file = fs::read_to_string("./editorTestFile").expect("Unable to read file");
+        let file_path = "./editorTestFile";
+
+        let string_file = fs::read_to_string(file_path).expect("Unable to read file");
         let mut cursor = Cursor::new(
             string_file
                 .split('\n')
@@ -61,7 +68,34 @@ pub mod sdl2 {
                     | Event::KeyDown {
                         keycode: Some(Keycode::Escape),
                         ..
-                    } => break 'running,
+                    } => {
+                        let path = Path::new(file_path);
+                        let display = path.display();
+
+                        let mut file = match File::create(&path) {
+                            Err(why) => {
+                                panic!("couldn't create {}: {}", display, why.description())
+                            }
+                            Ok(file) => file,
+                        };
+
+                        match file.write_all(
+                            cursor
+                                .lines
+                                .into_iter()
+                                .collect::<Vec<String>>()
+                                .join("\n")
+                                .as_bytes(),
+                        ) {
+                            Err(why) => {
+                                panic!("couldn't write to {}: {}", display, why.description())
+                            }
+                            Ok(_) => {
+                                println!("successfully wrote to {}", display);
+                                break 'running;
+                            }
+                        }
+                    }
                     Event::TextInput { text, .. } => {
                         let mut characters = text.chars();
                         if let Some(character) = characters.next() {
