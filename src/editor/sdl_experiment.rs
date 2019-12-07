@@ -29,6 +29,14 @@ pub mod sdl2 {
     static LINE_GAP: i32 = CHARACTER_HEIGHT / 3;
     static CHARACTER_GAP: i32 = CHARACTER_WIDTH / 3;
 
+    fn get_character_x(column_index: i32) -> i32 {
+        column_index * (CHARACTER_GAP + CHARACTER_WIDTH)
+    }
+
+    fn get_character_y(line_index: i32) -> i32 {
+        line_index * (LINE_GAP + CHARACTER_HEIGHT)
+    }
+
     pub fn run() {
         let sdl_context = sdl2::init().unwrap();
         let video_subsystem = sdl_context.video().unwrap();
@@ -139,7 +147,7 @@ pub mod sdl2 {
             }
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
-                let line_y_offset = line_index as i32 * (LINE_GAP + CHARACTER_HEIGHT);
+                let line_y_offset = get_character_y(line_index as i32);
                 for (column_index, one_character_string) in line
                     .split("")
                     .filter(|string| string.chars().count() > 0)
@@ -147,8 +155,7 @@ pub mod sdl2 {
                 {
                     let mut characters = one_character_string.chars();
                     if let Some(character) = characters.next() {
-                        let character_x_offset =
-                            column_index as i32 * (CHARACTER_GAP + CHARACTER_WIDTH);
+                        let character_x_offset = get_character_x(column_index as i32);
                         let coords =
                             get_character_coords(&character, CHARACTER_WIDTH, CHARACTER_HEIGHT);
 
@@ -172,13 +179,12 @@ pub mod sdl2 {
             canvas
                 .draw_line(
                     (
-                        cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
-                        cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
+                        get_character_x(cursor.current.column as i32),
+                        get_character_y(cursor.current.line as i32),
                     ),
                     (
-                        cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
-                        cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                            + CHARACTER_HEIGHT,
+                        get_character_x(cursor.current.column as i32),
+                        get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT,
                     ),
                 )
                 .unwrap();
@@ -192,15 +198,14 @@ pub mod sdl2 {
                         canvas
                             .draw_line(
                                 (
-                                    0,
-                                    current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                        + CHARACTER_HEIGHT / 2,
+                                    get_character_x(0),
+                                    get_character_y(current_line as i32) + CHARACTER_HEIGHT / 2,
                                 ),
                                 (
-                                    cursor.lines[current_line].chars().count() as i32
-                                        * (CHARACTER_GAP + CHARACTER_WIDTH),
-                                    current_line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                        + CHARACTER_HEIGHT / 2,
+                                    get_character_x(
+                                        cursor.lines[current_line].chars().count() as i32
+                                    ),
+                                    get_character_y(current_line as i32) + CHARACTER_HEIGHT / 2,
                                 ),
                             )
                             .unwrap();
@@ -215,17 +220,16 @@ pub mod sdl2 {
                     canvas
                         .draw_line(
                             (
-                                selection_to_end_of_line.column as i32
-                                    * (CHARACTER_GAP + CHARACTER_WIDTH),
-                                selection_to_end_of_line.line as i32
-                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                get_character_x(selection_to_end_of_line.column as i32),
+                                get_character_y(selection_to_end_of_line.line as i32)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                             (
-                                cursor.lines[selection_to_end_of_line.line].chars().count() as i32
-                                    * (CHARACTER_GAP + CHARACTER_WIDTH),
-                                selection_to_end_of_line.line as i32
-                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                get_character_x(
+                                    cursor.lines[selection_to_end_of_line.line].chars().count()
+                                        as i32,
+                                ),
+                                get_character_y(selection_to_end_of_line.line as i32)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                         )
@@ -233,16 +237,13 @@ pub mod sdl2 {
                     canvas
                         .draw_line(
                             (
-                                0,
-                                selection_from_beginning_of_line.line as i32
-                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                get_character_x(0),
+                                get_character_y(selection_from_beginning_of_line.line as i32)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                             (
-                                selection_from_beginning_of_line.column as i32
-                                    * (CHARACTER_GAP + CHARACTER_WIDTH),
-                                selection_from_beginning_of_line.line as i32
-                                    * (LINE_GAP + CHARACTER_HEIGHT)
+                                get_character_x(selection_from_beginning_of_line.column as i32),
+                                get_character_y(selection_from_beginning_of_line.line as i32)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                         )
@@ -251,14 +252,12 @@ pub mod sdl2 {
                     canvas
                         .draw_line(
                             (
-                                cursor.current.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
-                                cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                    + CHARACTER_HEIGHT / 2,
+                                get_character_x(cursor.current.column as i32),
+                                get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT / 2,
                             ),
                             (
-                                cursor.extender.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
-                                cursor.current.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                    + CHARACTER_HEIGHT / 2,
+                                get_character_x(cursor.extender.column as i32),
+                                get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT / 2,
                             ),
                         )
                         .unwrap();
@@ -268,13 +267,12 @@ pub mod sdl2 {
                 canvas
                     .draw_line(
                         (
-                            cursor.extender.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
-                            cursor.extender.line as i32 * (LINE_GAP + CHARACTER_HEIGHT),
+                            get_character_x(cursor.extender.column as i32),
+                            get_character_y(cursor.extender.line as i32),
                         ),
                         (
-                            cursor.extender.column as i32 * (CHARACTER_GAP + CHARACTER_WIDTH),
-                            cursor.extender.line as i32 * (LINE_GAP + CHARACTER_HEIGHT)
-                                + CHARACTER_HEIGHT,
+                            get_character_x(cursor.extender.column as i32),
+                            get_character_y(cursor.extender.line as i32) + CHARACTER_HEIGHT,
                         ),
                     )
                     .unwrap();
