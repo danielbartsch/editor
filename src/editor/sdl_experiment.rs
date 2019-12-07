@@ -132,11 +132,13 @@ pub mod sdl2 {
                 cursor.right(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::Left) {
                 cursor.left(is_selecting_text);
-            } else if pressed_keys.contains(&Keycode::Down) {
+            }
+            if pressed_keys.contains(&Keycode::Down) {
                 cursor.down(is_selecting_text);
             } else if pressed_keys.contains(&Keycode::Up) {
                 cursor.up(is_selecting_text);
-            } else if pressed_keys.contains(&Keycode::Delete) {
+            }
+            if pressed_keys.contains(&Keycode::Delete) {
                 cursor.delete();
             } else if pressed_keys.contains(&Keycode::Backspace) {
                 cursor.backspace();
