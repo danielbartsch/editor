@@ -638,6 +638,16 @@ mod tests {
         assert_eq!(cursor.current.column, 0);
         assert_eq!(cursor.lines, vec![String::from("ab"), String::from("kl")]);
     }
+    #[test]
+    fn new_line_multi_byte() {
+        let mut cursor = Cursor::new(vec![String::from("🌈°")]);
+        cursor.right(false);
+        cursor.right(false);
+        cursor.new_line();
+        assert_eq!(cursor.current.column, 0);
+        assert_eq!(cursor.lines, vec![String::from("🌈°"), String::from("")]);
+    }
+    #[test]
     fn home_empty() {
         let mut cursor = Cursor::new(vec![String::from("")]);
         cursor.home(false);

@@ -176,7 +176,16 @@ pub mod cursor {
                 self.delete();
             }
             let (remaining_current_line, new_next_line) =
-                self.lines[self.current.line].split_at_mut(self.current.column);
+                self.lines[self.current.line].chars().enumerate().fold(
+                    ("".to_string(), "".to_string()),
+                    |acc, (index, current_character)| {
+                        if index >= self.current.column {
+                            (acc.0, format!("{}{}", acc.1, current_character).to_string())
+                        } else {
+                            (format!("{}{}", acc.0, current_character).to_string(), acc.1)
+                        }
+                    },
+                );
             let (remaining_current_line_string, new_next_line_string) = (
                 remaining_current_line.to_string(),
                 new_next_line.to_string(),
