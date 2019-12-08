@@ -47,6 +47,12 @@ pub mod editor {
         b: 200,
         a: 0xff,
     };
+    static CURSOR_SELECTION_COLOR: Color = Color {
+        r: 250,
+        g: 150,
+        b: 100,
+        a: 0xff,
+    };
 
     fn get_character_x(column_index: i32) -> i32 {
         column_index * (CHARACTER_GAP + CHARACTER_WIDTH) + CHARACTER_X_OFFSET
@@ -224,6 +230,7 @@ pub mod editor {
                     )
                     .unwrap();
             }
+            canvas.set_draw_color(CURSOR_SELECTION_COLOR);
             if cursor.current != cursor.extender {
                 if cursor.current.line != cursor.extender.line {
                     for current_line in if cursor.current.line > cursor.extender.line {
