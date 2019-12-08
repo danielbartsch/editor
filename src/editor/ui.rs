@@ -116,52 +116,52 @@ pub mod editor {
                     }
                     Event::KeyDown {
                         keycode, repeat, ..
-                    } => match keycode {
-                        Some(Keycode::Right) => cursor.right(is_selecting_text),
-                        Some(Keycode::Left) => cursor.left(is_selecting_text),
-                        Some(Keycode::Down) => {
-                            cursor.down(is_selecting_text);
-                            if cursor.extender.line
-                                >= (camera_line as usize + scroll_height_in_lines as usize)
-                            {
-                                camera_line =
-                                    cursor.extender.line as i32 - scroll_height_in_lines as i32;
-                            }
-                        }
-                        Some(Keycode::Up) => {
-                            cursor.up(is_selecting_text);
-                            if cursor.extender.line <= camera_line as usize {
-                                camera_line = cursor.extender.line as i32;
-                            }
-                        }
-                        Some(Keycode::Home) => cursor.home(is_selecting_text),
-                        Some(Keycode::End) => cursor.end(is_selecting_text),
-                        Some(Keycode::Delete) => cursor.delete(),
-                        Some(Keycode::Backspace) => cursor.backspace(),
-                        Some(Keycode::Return) => cursor.new_line(),
-                        Some(Keycode::S) => {
-                            if !repeat && is_holding_ctrl {
-                                if let Ok(_result) = cursor.to_file(file_path) {
-                                    println!(
-                                        "Saving current content to \"{}\" succeeded",
-                                        file_path
-                                    );
-                                } else {
-                                    println!("Saving current content to \"{}\" failed", file_path);
+                    } => {
+                        match keycode {
+                            Some(Keycode::Right) => cursor.right(is_selecting_text),
+                            Some(Keycode::Left) => cursor.left(is_selecting_text),
+                            Some(Keycode::Down) => cursor.down(is_selecting_text),
+                            Some(Keycode::Up) => cursor.up(is_selecting_text),
+                            Some(Keycode::Home) => cursor.home(is_selecting_text),
+                            Some(Keycode::End) => cursor.end(is_selecting_text),
+                            Some(Keycode::Delete) => cursor.delete(),
+                            Some(Keycode::Backspace) => cursor.backspace(),
+                            Some(Keycode::Return) => cursor.new_line(),
+                            Some(Keycode::S) => {
+                                if !repeat && is_holding_ctrl {
+                                    if let Ok(_result) = cursor.to_file(file_path) {
+                                        println!(
+                                            "Saving current content to \"{}\" succeeded",
+                                            file_path
+                                        );
+                                    } else {
+                                        println!(
+                                            "Saving current content to \"{}\" failed",
+                                            file_path
+                                        );
+                                    }
                                 }
                             }
-                        }
-                        Some(Keycode::A) => {
-                            if !repeat && is_holding_ctrl {
-                                cursor.current.line = 0;
-                                cursor.current.column = 0;
-                                cursor.extender.line = cursor.lines.len() - 1;
-                                cursor.extender.column =
-                                    cursor.lines[cursor.lines.len() - 1].chars().count();
+                            Some(Keycode::A) => {
+                                if !repeat && is_holding_ctrl {
+                                    cursor.current.line = 0;
+                                    cursor.current.column = 0;
+                                    cursor.extender.line = cursor.lines.len() - 1;
+                                    cursor.extender.column =
+                                        cursor.lines[cursor.lines.len() - 1].chars().count();
+                                }
                             }
+                            Some(_) | None => {}
                         }
-                        Some(_) | None => {}
-                    },
+                        if cursor.extender.line
+                            > (camera_line as usize + scroll_height_in_lines as usize)
+                        {
+                            camera_line =
+                                cursor.extender.line as i32 - scroll_height_in_lines as i32;
+                        } else if cursor.extender.line < camera_line as usize {
+                            camera_line = cursor.extender.line as i32;
+                        }
+                    }
                     Event::TextInput { text, .. } => {
                         let mut characters = text.chars();
                         if let Some(character) = characters.next() {
