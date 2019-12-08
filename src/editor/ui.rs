@@ -11,11 +11,6 @@ pub mod editor {
     use sdl2::rect::Point;
     use sdl2::render::WindowCanvas;
     use std::collections::HashSet;
-    use std::error::Error;
-    use std::fs;
-    use std::fs::File;
-    use std::io::prelude::*;
-    use std::path::Path;
     use std::time::Duration;
 
     use super::cursor::cursor::Cursor;
@@ -53,13 +48,7 @@ pub mod editor {
 
         let mut event_pump = sdl_context.event_pump().unwrap();
 
-        let string_file = fs::read_to_string(file_path).expect("Unable to read file");
-        let mut cursor = Cursor::new(
-            string_file
-                .split('\n')
-                .map(|string| String::from(string))
-                .collect::<Vec<String>>(),
-        );
+        let mut cursor = Cursor::from_file(file_path);
 
         video_subsystem.text_input().start();
 
@@ -73,31 +62,11 @@ pub mod editor {
                         keycode: Some(Keycode::Escape),
                         ..
                     } => {
-                        let path = Path::new(file_path);
-                        let display = path.display();
-
-                        let mut file = match File::create(&path) {
-                            Err(why) => {
-                                panic!("couldn't create {}: {}", display, why.description())
-                            }
-                            Ok(file) => file,
-                        };
-
-                        match file.write_all(
-                            cursor
-                                .lines
-                                .into_iter()
-                                .collect::<Vec<String>>()
-                                .join("\n")
-                                .as_bytes(),
-                        ) {
-                            Err(why) => {
-                                panic!("couldn't write to {}: {}", display, why.description())
-                            }
-                            Ok(_) => {
-                                println!("successfully wrote to {}", display);
-                                break 'running;
-                            }
+                        if let Ok(_result) = cursor.to_file(file_path) {
+                            println!("Saving current content to \"{}\" succeeded", file_path);
+                            break 'running;
+                        } else {
+                            println!("Saving current content to \"{}\" failed", file_path);
                         }
                     }
                     Event::TextInput { text, .. } => {

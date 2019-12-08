@@ -38,7 +38,12 @@ pub mod cursor {
         pub extender: CursorPosition,
         pub lines: Vec<String>,
     }
-
+    use std::error::Error;
+    use std::fs;
+    use std::fs::File;
+    use std::io;
+    use std::io::prelude::*;
+    use std::path::Path;
     impl Cursor {
         pub fn new(lines: Vec<String>) -> Cursor {
             Cursor {
@@ -54,6 +59,37 @@ pub mod cursor {
                 },
                 lines: lines,
             }
+        }
+        pub fn from_file(file_name: &str) -> Cursor {
+            let string_file = fs::read_to_string(file_name);
+            if let Ok(actual_content) = string_file {
+                Cursor::new(
+                    actual_content
+                        .split('\n')
+                        .map(|string| String::from(string))
+                        .collect::<Vec<String>>(),
+                )
+            } else {
+                panic!("Could not read file: {}", file_name);
+            }
+        }
+        pub fn to_file(&mut self, file_name: &str) -> Result<(), io::Error> {
+            let path = Path::new(file_name);
+            let display = path.display();
+
+            let mut file = match File::create(&path) {
+                Err(why) => panic!("couldn't create {}: {}", display, why.description()),
+                Ok(file) => file,
+            };
+
+            file.write_all(
+                self.lines
+                    .clone()
+                    .into_iter()
+                    .collect::<Vec<String>>()
+                    .join("\n")
+                    .as_bytes(),
+            )
         }
         pub fn add(&mut self, character: char) {
             if self.current != self.extender {
@@ -147,7 +183,7 @@ pub mod cursor {
 
                     self.lines[end_of_line_delete.line].push_str(&next_line);
 
-                    for line_index in (end_of_line_delete.line + 1)..=beginning_of_line_delete.line
+                    for _line_index in (end_of_line_delete.line + 1)..=beginning_of_line_delete.line
                     {
                         self.lines.remove(end_of_line_delete.line + 1);
                     }
