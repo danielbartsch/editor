@@ -9,4 +9,6 @@ testCov:
 		src/editor/ui.rs \
 		src/editor/text_rendering.rs \
 		src/main.rs \
-		*.test.rs
+		*.test.rs \
+	-- \
+	--quiet
