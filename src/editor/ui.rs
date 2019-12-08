@@ -169,13 +169,9 @@ pub mod editor {
                         }
                     }
                     Event::MouseWheel { y, .. } => {
-                        let mouse_wheel_y_scalar = -y;
-                        if (mouse_wheel_y_scalar < 0 && (camera_line + mouse_wheel_y_scalar) >= 0)
-                            || (mouse_wheel_y_scalar > 0
-                                && (camera_line + mouse_wheel_y_scalar)
-                                    <= cursor.lines.len() as i32)
-                        {
-                            camera_line += mouse_wheel_y_scalar
+                        let new_camera_line = camera_line - y;
+                        if new_camera_line >= 0 && new_camera_line < cursor.lines.len() as i32 {
+                            camera_line = new_camera_line;
                         }
                     }
                     _ => {}
