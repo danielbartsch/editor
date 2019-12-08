@@ -64,7 +64,7 @@ pub mod editor {
         video_subsystem.text_input().start();
 
         'running: loop {
-            canvas.set_draw_color(Color::RGB(40, 40, 40));
+            canvas.set_draw_color(Color::RGB(0, 0, 0));
             canvas.clear();
             for event in event_pump.poll_iter() {
                 match event {
