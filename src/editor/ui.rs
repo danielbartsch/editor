@@ -55,6 +55,17 @@ pub mod editor {
         'running: loop {
             canvas.set_draw_color(Color::RGB(0, 0, 0));
             canvas.clear();
+
+            let mut pressed_keys = HashSet::new();
+            pressed_keys = event_pump
+                .keyboard_state()
+                .pressed_scancodes()
+                .filter_map(Keycode::from_scancode)
+                .collect();
+
+            let is_selecting_text =
+                pressed_keys.contains(&Keycode::LShift) || pressed_keys.contains(&Keycode::RShift);
+
             for event in event_pump.poll_iter() {
                 match event {
                     Event::Quit { .. }
@@ -69,6 +80,18 @@ pub mod editor {
                             println!("Saving current content to \"{}\" failed", file_path);
                         }
                     }
+                    Event::KeyDown { keycode, .. } => match keycode {
+                        Some(Keycode::Right) => cursor.right(is_selecting_text),
+                        Some(Keycode::Left) => cursor.left(is_selecting_text),
+                        Some(Keycode::Down) => cursor.down(is_selecting_text),
+                        Some(Keycode::Up) => cursor.up(is_selecting_text),
+                        Some(Keycode::Home) => cursor.home(is_selecting_text),
+                        Some(Keycode::End) => cursor.end(is_selecting_text),
+                        Some(Keycode::Delete) => cursor.delete(),
+                        Some(Keycode::Backspace) => cursor.backspace(),
+                        Some(Keycode::Return) => cursor.new_line(),
+                        Some(_) | None => {}
+                    },
                     Event::TextInput { text, .. } => {
                         let mut characters = text.chars();
                         if let Some(character) = characters.next() {
@@ -80,38 +103,6 @@ pub mod editor {
             }
 
             canvas.set_draw_color(Color::RGB(80, 80, 80));
-
-            let mut pressed_keys = HashSet::new();
-            pressed_keys = event_pump
-                .keyboard_state()
-                .pressed_scancodes()
-                .filter_map(Keycode::from_scancode)
-                .collect();
-
-            let is_selecting_text =
-                pressed_keys.contains(&Keycode::LShift) || pressed_keys.contains(&Keycode::RShift);
-
-            if pressed_keys.contains(&Keycode::Right) {
-                cursor.right(is_selecting_text);
-            } else if pressed_keys.contains(&Keycode::Left) {
-                cursor.left(is_selecting_text);
-            }
-            if pressed_keys.contains(&Keycode::Down) {
-                cursor.down(is_selecting_text);
-            } else if pressed_keys.contains(&Keycode::Up) {
-                cursor.up(is_selecting_text);
-            }
-            if pressed_keys.contains(&Keycode::Delete) {
-                cursor.delete();
-            } else if pressed_keys.contains(&Keycode::Backspace) {
-                cursor.backspace();
-            } else if pressed_keys.contains(&Keycode::Return) {
-                cursor.new_line();
-            } else if pressed_keys.contains(&Keycode::Home) {
-                cursor.home(is_selecting_text);
-            } else if pressed_keys.contains(&Keycode::End) {
-                cursor.end(is_selecting_text);
-            }
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
                 let line_y_offset = get_character_y(line_index as i32);
