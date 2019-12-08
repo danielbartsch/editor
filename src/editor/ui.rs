@@ -242,13 +242,15 @@ pub mod editor {
                             .draw_line(
                                 (
                                     get_character_x(0),
-                                    get_character_y(current_line as i32) + CHARACTER_HEIGHT / 2,
+                                    get_character_y(current_line as i32 - camera_line)
+                                        + CHARACTER_HEIGHT / 2,
                                 ),
                                 (
                                     get_character_x(
                                         cursor.lines[current_line].chars().count() as i32
                                     ),
-                                    get_character_y(current_line as i32) + CHARACTER_HEIGHT / 2,
+                                    get_character_y(current_line as i32 - camera_line)
+                                        + CHARACTER_HEIGHT / 2,
                                 ),
                             )
                             .unwrap();
@@ -264,7 +266,7 @@ pub mod editor {
                         .draw_line(
                             (
                                 get_character_x(selection_to_end_of_line.column as i32),
-                                get_character_y(selection_to_end_of_line.line as i32)
+                                get_character_y(selection_to_end_of_line.line as i32 - camera_line)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                             (
@@ -272,7 +274,7 @@ pub mod editor {
                                     cursor.lines[selection_to_end_of_line.line].chars().count()
                                         as i32,
                                 ),
-                                get_character_y(selection_to_end_of_line.line as i32)
+                                get_character_y(selection_to_end_of_line.line as i32 - camera_line)
                                     + CHARACTER_HEIGHT / 2,
                             ),
                         )
@@ -281,13 +283,15 @@ pub mod editor {
                         .draw_line(
                             (
                                 get_character_x(0),
-                                get_character_y(selection_from_beginning_of_line.line as i32)
-                                    + CHARACTER_HEIGHT / 2,
+                                get_character_y(
+                                    selection_from_beginning_of_line.line as i32 - camera_line,
+                                ) + CHARACTER_HEIGHT / 2,
                             ),
                             (
                                 get_character_x(selection_from_beginning_of_line.column as i32),
-                                get_character_y(selection_from_beginning_of_line.line as i32)
-                                    + CHARACTER_HEIGHT / 2,
+                                get_character_y(
+                                    selection_from_beginning_of_line.line as i32 - camera_line,
+                                ) + CHARACTER_HEIGHT / 2,
                             ),
                         )
                         .unwrap();
@@ -296,11 +300,13 @@ pub mod editor {
                         .draw_line(
                             (
                                 get_character_x(cursor.current.column as i32),
-                                get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT / 2,
+                                get_character_y(cursor.current.line as i32 - camera_line)
+                                    + CHARACTER_HEIGHT / 2,
                             ),
                             (
                                 get_character_x(cursor.extender.column as i32),
-                                get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT / 2,
+                                get_character_y(cursor.current.line as i32 - camera_line)
+                                    + CHARACTER_HEIGHT / 2,
                             ),
                         )
                         .unwrap();
