@@ -66,6 +66,9 @@ pub mod editor {
             let is_selecting_text =
                 pressed_keys.contains(&Keycode::LShift) || pressed_keys.contains(&Keycode::RShift);
 
+            let is_holding_ctrl =
+                pressed_keys.contains(&Keycode::LCtrl) || pressed_keys.contains(&Keycode::RCtrl);
+
             for event in event_pump.poll_iter() {
                 match event {
                     Event::Quit { .. }
@@ -80,7 +83,9 @@ pub mod editor {
                             println!("Saving current content to \"{}\" failed", file_path);
                         }
                     }
-                    Event::KeyDown { keycode, .. } => match keycode {
+                    Event::KeyDown {
+                        keycode, repeat, ..
+                    } => match keycode {
                         Some(Keycode::Right) => cursor.right(is_selecting_text),
                         Some(Keycode::Left) => cursor.left(is_selecting_text),
                         Some(Keycode::Down) => cursor.down(is_selecting_text),
@@ -90,6 +95,18 @@ pub mod editor {
                         Some(Keycode::Delete) => cursor.delete(),
                         Some(Keycode::Backspace) => cursor.backspace(),
                         Some(Keycode::Return) => cursor.new_line(),
+                        Some(Keycode::S) => {
+                            if !repeat && is_holding_ctrl {
+                                if let Ok(_result) = cursor.to_file(file_path) {
+                                    println!(
+                                        "Saving current content to \"{}\" succeeded",
+                                        file_path
+                                    );
+                                } else {
+                                    println!("Saving current content to \"{}\" failed", file_path);
+                                }
+                            }
+                        }
                         Some(_) | None => {}
                     },
                     Event::TextInput { text, .. } => {
