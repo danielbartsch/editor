@@ -102,6 +102,15 @@ pub mod editor {
                                 }
                             }
                         }
+                        Some(Keycode::A) => {
+                            if !repeat && is_holding_ctrl {
+                                cursor.current.line = 0;
+                                cursor.current.column = 0;
+                                cursor.extender.line = cursor.lines.len() - 1;
+                                cursor.extender.column =
+                                    cursor.lines[cursor.lines.len() - 1].chars().count();
+                            }
+                        }
                         Some(_) | None => {}
                     },
                     Event::TextInput { text, .. } => {
