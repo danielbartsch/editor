@@ -76,12 +76,7 @@ pub mod editor {
                         keycode: Some(Keycode::Escape),
                         ..
                     } => {
-                        if let Ok(_result) = cursor.to_file(file_path) {
-                            println!("Saving current content to \"{}\" succeeded", file_path);
-                            break 'running;
-                        } else {
-                            println!("Saving current content to \"{}\" failed", file_path);
-                        }
+                        break 'running;
                     }
                     Event::KeyDown {
                         keycode, repeat, ..
