@@ -62,6 +62,9 @@ pub mod editor {
         let window_width = ((CHARACTER_WIDTH + CHARACTER_GAP) * 45) as u32;
         let window_height = ((CHARACTER_HEIGHT + LINE_GAP) * 20) as u32;
 
+        let scroll_height_in_lines = (window_height as f32 - CHARACTER_Y_OFFSET as f32)
+            / (LINE_GAP as f32 + CHARACTER_HEIGHT as f32);
+
         let window = video_subsystem
             .window("Editor", window_width, window_height)
             .position_centered()
@@ -110,8 +113,21 @@ pub mod editor {
                     } => match keycode {
                         Some(Keycode::Right) => cursor.right(is_selecting_text),
                         Some(Keycode::Left) => cursor.left(is_selecting_text),
-                        Some(Keycode::Down) => cursor.down(is_selecting_text),
-                        Some(Keycode::Up) => cursor.up(is_selecting_text),
+                        Some(Keycode::Down) => {
+                            cursor.down(is_selecting_text);
+                            if cursor.extender.line
+                                >= (camera_line as usize + scroll_height_in_lines as usize)
+                            {
+                                camera_line =
+                                    cursor.extender.line as i32 - scroll_height_in_lines as i32;
+                            }
+                        }
+                        Some(Keycode::Up) => {
+                            cursor.up(is_selecting_text);
+                            if cursor.extender.line <= camera_line as usize {
+                                camera_line = cursor.extender.line as i32;
+                            }
+                        }
                         Some(Keycode::Home) => cursor.home(is_selecting_text),
                         Some(Keycode::End) => cursor.end(is_selecting_text),
                         Some(Keycode::Delete) => cursor.delete(),
