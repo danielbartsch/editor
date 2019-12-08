@@ -23,6 +23,31 @@ pub mod editor {
     static CHARACTER_X_OFFSET: i32 = 10;
     static CHARACTER_Y_OFFSET: i32 = 5;
 
+    static BACKGROUND_COLOR: Color = Color {
+        r: 0,
+        g: 0,
+        b: 0,
+        a: 0xff,
+    };
+    static TEXT_COLOR: Color = Color {
+        r: 80,
+        g: 80,
+        b: 80,
+        a: 0xff,
+    };
+    static CURSOR_COLOR: Color = Color {
+        r: 200,
+        g: 200,
+        b: 200,
+        a: 0xff,
+    };
+    static CURSOR_EXTENDER_COLOR: Color = Color {
+        r: 135,
+        g: 200,
+        b: 200,
+        a: 0xff,
+    };
+
     fn get_character_x(column_index: i32) -> i32 {
         column_index * (CHARACTER_GAP + CHARACTER_WIDTH) + CHARACTER_X_OFFSET
     }
@@ -53,7 +78,7 @@ pub mod editor {
         video_subsystem.text_input().start();
 
         'running: loop {
-            canvas.set_draw_color(Color::RGB(0, 0, 0));
+            canvas.set_draw_color(BACKGROUND_COLOR);
             canvas.clear();
 
             let mut pressed_keys = HashSet::new();
@@ -123,7 +148,7 @@ pub mod editor {
                 }
             }
 
-            canvas.set_draw_color(Color::RGB(80, 80, 80));
+            canvas.set_draw_color(TEXT_COLOR);
 
             for (line_index, line) in cursor.lines.iter().enumerate() {
                 let line_y_offset = get_character_y(line_index as i32);
@@ -154,7 +179,7 @@ pub mod editor {
                 }
             }
 
-            canvas.set_draw_color(Color::RGB(200, 200, 200));
+            canvas.set_draw_color(CURSOR_COLOR);
             canvas
                 .draw_line(
                     (
@@ -242,7 +267,7 @@ pub mod editor {
                         .unwrap();
                 }
 
-                canvas.set_draw_color(Color::RGB(135, 200, 200));
+                canvas.set_draw_color(CURSOR_EXTENDER_COLOR);
                 canvas
                     .draw_line(
                         (
