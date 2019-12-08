@@ -180,7 +180,11 @@ pub mod editor {
 
             canvas.set_draw_color(TEXT_COLOR);
 
-            for (line_index, line) in cursor.lines[(camera_line as usize)..].iter().enumerate() {
+            for (line_index, line) in cursor.lines[(camera_line as usize)
+                ..(camera_line as usize + scroll_height_in_lines.ceil() as usize)]
+                .iter()
+                .enumerate()
+            {
                 let line_y_offset = get_character_y(line_index as i32);
                 for (column_index, one_character_string) in line
                     .split("")
