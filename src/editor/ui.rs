@@ -75,6 +75,8 @@ pub mod editor {
 
         let mut cursor = Cursor::from_file(file_path);
 
+        let mut camera_line: i32 = 0;
+
         video_subsystem.text_input().start();
 
         'running: loop {
@@ -144,13 +146,23 @@ pub mod editor {
                             cursor.add(character);
                         }
                     }
+                    Event::MouseWheel { y, .. } => {
+                        let mouse_wheel_y_scalar = -y;
+                        if (mouse_wheel_y_scalar < 0 && (camera_line + mouse_wheel_y_scalar) >= 0)
+                            || (mouse_wheel_y_scalar > 0
+                                && (camera_line + mouse_wheel_y_scalar)
+                                    <= cursor.lines.len() as i32)
+                        {
+                            camera_line += mouse_wheel_y_scalar
+                        }
+                    }
                     _ => {}
                 }
             }
 
             canvas.set_draw_color(TEXT_COLOR);
 
-            for (line_index, line) in cursor.lines.iter().enumerate() {
+            for (line_index, line) in cursor.lines[(camera_line as usize)..].iter().enumerate() {
                 let line_y_offset = get_character_y(line_index as i32);
                 for (column_index, one_character_string) in line
                     .split("")
@@ -179,19 +191,23 @@ pub mod editor {
                 }
             }
 
-            canvas.set_draw_color(CURSOR_COLOR);
-            canvas
-                .draw_line(
-                    (
-                        get_character_x(cursor.current.column as i32),
-                        get_character_y(cursor.current.line as i32) - CHARACTER_HEIGHT * 1 / 5,
-                    ),
-                    (
-                        get_character_x(cursor.current.column as i32),
-                        get_character_y(cursor.current.line as i32) + CHARACTER_HEIGHT * 6 / 5,
-                    ),
-                )
-                .unwrap();
+            if cursor.current.line >= camera_line as usize {
+                canvas.set_draw_color(CURSOR_COLOR);
+                canvas
+                    .draw_line(
+                        (
+                            get_character_x(cursor.current.column as i32),
+                            get_character_y(cursor.current.line as i32 - camera_line)
+                                - CHARACTER_HEIGHT * 1 / 5,
+                        ),
+                        (
+                            get_character_x(cursor.current.column as i32),
+                            get_character_y(cursor.current.line as i32 - camera_line)
+                                + CHARACTER_HEIGHT * 6 / 5,
+                        ),
+                    )
+                    .unwrap();
+            }
             if cursor.current != cursor.extender {
                 if cursor.current.line != cursor.extender.line {
                     for current_line in if cursor.current.line > cursor.extender.line {
@@ -267,19 +283,23 @@ pub mod editor {
                         .unwrap();
                 }
 
-                canvas.set_draw_color(CURSOR_EXTENDER_COLOR);
-                canvas
-                    .draw_line(
-                        (
-                            get_character_x(cursor.extender.column as i32),
-                            get_character_y(cursor.extender.line as i32) - CHARACTER_HEIGHT * 1 / 5,
-                        ),
-                        (
-                            get_character_x(cursor.extender.column as i32),
-                            get_character_y(cursor.extender.line as i32) + CHARACTER_HEIGHT * 6 / 5,
-                        ),
-                    )
-                    .unwrap();
+                if cursor.extender.line >= camera_line as usize {
+                    canvas.set_draw_color(CURSOR_EXTENDER_COLOR);
+                    canvas
+                        .draw_line(
+                            (
+                                get_character_x(cursor.extender.column as i32),
+                                get_character_y(cursor.extender.line as i32 - camera_line)
+                                    - CHARACTER_HEIGHT * 1 / 5,
+                            ),
+                            (
+                                get_character_x(cursor.extender.column as i32),
+                                get_character_y(cursor.extender.line as i32 - camera_line)
+                                    + CHARACTER_HEIGHT * 6 / 5,
+                            ),
+                        )
+                        .unwrap();
+                }
             }
 
             canvas.present();
