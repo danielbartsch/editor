@@ -181,7 +181,8 @@ pub mod editor {
             canvas.set_draw_color(TEXT_COLOR);
 
             for (line_index, line) in cursor.lines[(camera_line as usize)
-                ..(camera_line as usize + scroll_height_in_lines.ceil() as usize)]
+                ..(camera_line as usize + scroll_height_in_lines.ceil() as usize)
+                    .min(cursor.lines.len())]
                 .iter()
                 .enumerate()
             {
