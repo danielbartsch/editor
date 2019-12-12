@@ -792,4 +792,30 @@ mod tests {
         assert_eq!(cursor.extender.column, 5);
         assert_eq!(cursor.extender.line, 1);
     }
+    #[test]
+    fn multi_line_string_to_cursor() {
+        let cursor_linux =
+            Cursor::multi_line_string_to_cursor(&"Hello\nWorld".to_string(), &"\n".to_string());
+        let cursor_windows =
+            Cursor::multi_line_string_to_cursor(&"Hello\n\rWorld".to_string(), &"\n\r".to_string());
+
+        assert_eq!(cursor_linux.lines, cursor_windows.lines,);
+        assert_eq!(
+            cursor_linux.lines,
+            Cursor::new(vec![String::from("Hello"), String::from("World"),]).lines
+        );
+    }
+    #[test]
+    fn to_multi_line_string() {
+        let mut cursor = Cursor::new(vec![String::from("Hello"), String::from("World")]);
+
+        assert_eq!(
+            cursor.to_multi_line_string(&"\n".to_string()),
+            "Hello\nWorld".to_string()
+        );
+        assert_eq!(
+            cursor.to_multi_line_string(&"\n\r".to_string()),
+            "Hello\n\rWorld".to_string()
+        );
+    }
 }

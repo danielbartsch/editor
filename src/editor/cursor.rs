@@ -63,15 +63,18 @@ pub mod cursor {
         pub fn from_file(file_name: &str) -> Cursor {
             let string_file = fs::read_to_string(file_name);
             if let Ok(actual_content) = string_file {
-                Cursor::new(
-                    actual_content
-                        .split('\n')
-                        .map(|string| String::from(string))
-                        .collect::<Vec<String>>(),
-                )
+                Cursor::multi_line_string_to_cursor(&actual_content, &"\n".to_string())
             } else {
                 panic!("Could not read file: {}", file_name);
             }
+        }
+        pub fn multi_line_string_to_cursor(string: &String, separator: &String) -> Cursor {
+            Cursor::new(
+                string
+                    .split(separator)
+                    .map(|string| String::from(string))
+                    .collect::<Vec<String>>(),
+            )
         }
         pub fn to_file(&mut self, file_name: &str) -> Result<(), io::Error> {
             let path = Path::new(file_name);
@@ -82,14 +85,14 @@ pub mod cursor {
                 Ok(file) => file,
             };
 
-            file.write_all(
-                self.lines
-                    .clone()
-                    .into_iter()
-                    .collect::<Vec<String>>()
-                    .join("\n")
-                    .as_bytes(),
-            )
+            file.write_all(self.to_multi_line_string(&"\n".to_string()).as_bytes())
+        }
+        pub fn to_multi_line_string(&mut self, separator: &String) -> String {
+            self.lines
+                .clone()
+                .into_iter()
+                .collect::<Vec<String>>()
+                .join(separator)
         }
         pub fn add(&mut self, character: char) {
             if self.current != self.extender {
