@@ -111,6 +111,17 @@ pub mod cursor {
             }
             self.right(false);
         }
+        fn filter_character(line: &String, condition: impl Fn(usize) -> bool) -> String {
+            line.chars()
+                .enumerate()
+                .fold("".to_string(), |acc, (index, current_character)| {
+                    if condition(index) {
+                        format!("{}{}", acc, current_character)
+                    } else {
+                        format!("{}", acc)
+                    }
+                })
+        }
         pub fn delete(&mut self) {
             if &self.current == &self.extender {
                 if &self.current.column == &self.lines[self.current.line].chars().count() {
@@ -120,15 +131,9 @@ pub mod cursor {
                         self.lines.remove(self.current.line + 1);
                     }
                 } else {
-                    self.lines[self.current.line] = self.lines[self.current.line]
-                        .chars()
-                        .enumerate()
-                        .fold("".to_string(), |acc, (index, current_character)| {
-                            if self.current.column == index {
-                                format!("{}", acc)
-                            } else {
-                                format!("{}{}", acc, current_character)
-                            }
+                    self.lines[self.current.line] =
+                        Cursor::filter_character(&self.lines[self.current.line], |index| {
+                            index != self.current.column
                         });
                 }
             } else {
@@ -139,15 +144,9 @@ pub mod cursor {
                         } else {
                             (self.current.column, self.extender.column)
                         };
-                    self.lines[self.current.line] = self.lines[self.current.line]
-                        .chars()
-                        .enumerate()
-                        .fold("".to_string(), |acc, (index, current_character)| {
-                            if index >= lesser_column && index < greater_column {
-                                format!("{}", acc)
-                            } else {
-                                format!("{}{}", acc, current_character)
-                            }
+                    self.lines[self.current.line] =
+                        Cursor::filter_character(&self.lines[self.current.line], |index| {
+                            index < lesser_column || index >= greater_column
                         });
                 } else {
                     let (end_of_line_delete, beginning_of_line_delete) =
@@ -156,28 +155,15 @@ pub mod cursor {
                         } else {
                             (&self.extender, &self.current)
                         };
-                    self.lines[end_of_line_delete.line] = self.lines[end_of_line_delete.line]
-                        .chars()
-                        .enumerate()
-                        .fold("".to_string(), |acc, (index, current_character)| {
-                            if index >= end_of_line_delete.column {
-                                format!("{}", acc)
-                            } else {
-                                format!("{}{}", acc, current_character)
-                            }
+                    self.lines[end_of_line_delete.line] =
+                        Cursor::filter_character(&self.lines[end_of_line_delete.line], |index| {
+                            index < end_of_line_delete.column
                         });
 
-                    self.lines[beginning_of_line_delete.line] = self.lines
-                        [beginning_of_line_delete.line]
-                        .chars()
-                        .enumerate()
-                        .fold("".to_string(), |acc, (index, current_character)| {
-                            if beginning_of_line_delete.column > index {
-                                format!("{}", acc)
-                            } else {
-                                format!("{}{}", acc, current_character)
-                            }
-                        });
+                    self.lines[beginning_of_line_delete.line] = Cursor::filter_character(
+                        &self.lines[beginning_of_line_delete.line],
+                        |index| index >= beginning_of_line_delete.column,
+                    );
 
                     let next_line = self.lines[beginning_of_line_delete.line].to_string();
 
